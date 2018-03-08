@@ -1,7 +1,11 @@
 {
   "name": "spok-ico-contracts",
   "version": "1.0.0",
-  "description": "",
+  "description": "Smart contracts for Spok ICO",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/jimbocortes/spok-ico-contracts.git"
+  },
   "main": "truffle-config.js",
   "directories": {
     "test": "test"
