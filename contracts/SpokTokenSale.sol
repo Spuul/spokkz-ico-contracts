@@ -30,6 +30,7 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
   // Token Purchase
   function() external payable {
     uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
+
     if ((stage == TokenSaleStage.PreICO) && ( token.totalSupply() + tokensThatWillBeMintedAfterPurchase > totalTokensForSaleDuringPreICO)) {
       msg.sender.transfer(msg.value); // Refund them
       EthRefunded("PreICO Limit Hit");
@@ -42,5 +43,4 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
         totalWeiRaisedDuringPreICO = totalWeiRaisedDuringPreICO.add(msg.value);
     }
   }
-
 }
