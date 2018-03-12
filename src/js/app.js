@@ -2,6 +2,7 @@ App = {
   web3Provider: null,
   contracts: {},
   account: 0x0,
+  loading: false,
 
   init: function() {
     return App.initWeb3();
@@ -24,9 +25,14 @@ App = {
   },
 
   initContract: function() {
-    /*
-     * Replace me...
-     */
+    $.getJSON('SpokTokenSale.json', function(spokTokenSaleArtifact) {
+      // get the contract artifact file and use it to instantiate a truffle contract abstraction
+      App.contracts.SpokTokenSale = TruffleContract(spokTokenSaleArtifact);
+      // set the provider for our contracts
+      App.contracts.SpokTokenSale.setProvider(App.web3Provider);
+
+      return App.reloadDashboardData();
+    });
   },
 
   displayAccountInfo: function() {
@@ -69,6 +75,69 @@ App = {
       $('#networkId').text(networkType);
 
     });
+  },
+
+  reloadDashboardData: function() {
+    // avoid reentry
+    if (App.loading) {
+      return;
+    }
+    App.loading = true;
+
+    App.displayAccountInfo();
+
+    var tokenSaleInstance;
+
+    console.log("App.contracts");
+    console.log(App.contracts);
+
+    App.contracts.SpokTokenSale.deployed().then(function(instance) {
+      spokTokenSaleInstance = instance;
+      return spokTokenSaleInstance.getDashboardData();
+    }).then(function(dashboardData) {
+      var stage = dashboardData[0];
+      var etherRaised = web3.fromWei(dashboardData[1].toNumber(), 'ether');
+      var etherCap = web3.fromWei(dashboardData[2].toNumber(), 'ether');
+
+      var cap = dashboardData[2];
+
+      switch (stage.toString()) {
+        case "0":
+          stageName = "PreICO"
+          break;
+        case "1":
+          stageName = "ICO"
+          break;
+        default:
+          stageName = "Error"
+          console.log(stage);
+          break;
+      }
+      $('#currentStage').text(stageName);
+      $('#currentRaised').text(etherRaised);
+      $('#cap').text(etherCap + " ETH");
+
+      App.loading = false;
+    }).catch(function(err) {
+      console.error(err.message);
+      App.loading = false;
+    });
+
+    //   return chainListInstance.getArticlesForSale();
+    // }).then(function(articleIds) {
+    //   // retrieve the article placeholder and clear it
+    //   $('#articlesRow').empty();
+    //
+    //   for(var i = 0; i < articleIds.length; i++) {
+    //     var articleId = articleIds[i];
+    //     chainListInstance.articles(articleId.toNumber()).then(function(article){
+    //       App.displayArticle(article[0], article[1], article[3], article[4], article[5]);
+    //     });
+    //   }
+    //   App.loading = false;
+    // }).catch(function(err) {
+    //   console.error(err.message);
+    //   App.loading = false;
   },
 };
 

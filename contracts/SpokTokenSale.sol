@@ -43,4 +43,9 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
         totalWeiRaisedDuringPreICO = totalWeiRaisedDuringPreICO.add(msg.value);
     }
   }
+
+  // Get data for dashboard
+  function getDashboardData() public view returns (TokenSaleStage _stage, uint256 _weiRaised, uint256 _cap) {
+     return (stage, weiRaised, cap);
+  }
 }
