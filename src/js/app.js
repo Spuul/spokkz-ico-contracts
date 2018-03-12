@@ -39,6 +39,7 @@ App = {
   displayAccountInfo: function() {
     web3.eth.getCoinbase(function(err, account) {
         if (err === null) {
+
           App.account = account;
 
           $('#accountAddress').text(App.account);
@@ -108,6 +109,7 @@ App = {
 
     App.contracts.SpokTokenSale.deployed().then(function(instance) {
       spokTokenSaleInstance = instance;
+      $('#contractAddress').text(instance.address);
       return spokTokenSaleInstance.getDashboardData();
     }).then(function(dashboardData) {
       var stage = dashboardData[0];
@@ -131,6 +133,9 @@ App = {
       $('#currentStage').text(stageName);
       $('#currentRaised').text(etherRaised);
       $('#cap').text(etherCap + " ETH");
+
+
+
 
       App.loading = false;
     }).catch(function(err) {
