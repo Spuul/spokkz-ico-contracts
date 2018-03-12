@@ -48,4 +48,10 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
   function getDashboardData() public view returns (TokenSaleStage _stage, uint256 _weiRaised, uint256 _cap) {
      return (stage, weiRaised, cap);
   }
+
+  /* function isOwner() public view returns (bool _senderIsOwner) {
+    bool senderIsOwner = false;
+    senderIsOwner = (msg.sender == owner);
+    return senderIsOwner;
+  } */
 }

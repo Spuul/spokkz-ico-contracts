@@ -1,8 +1,9 @@
 App = {
   web3Provider: null,
   contracts: {},
-  account: 0x0,
+  account: "0x0",
   loading: false,
+  contractCreatorAddress: "0x627306090abab3a6e1400e9345bc60c78a8bef57",
 
   init: function() {
     return App.initWeb3();
@@ -37,16 +38,30 @@ App = {
 
   displayAccountInfo: function() {
     web3.eth.getCoinbase(function(err, account) {
-      if (err === null) {
-        App.account = account;
-        $('#accountAddress').text(account);
-        web3.eth.getBalance(account, function(err, balance) {
-          if (err === null) {
-            $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH");
+        if (err === null) {
+          App.account = account;
+
+          $('#accountAddress').text(App.account);
+
+          var contractCreator;
+
+          if (App.account === App.contractCreatorAddress) {
+            contractCreator = "Yes";
+          } else {
+            contractCreator = "No";
           }
-        })
+
+          $('#contractCreator').text(contractCreator);
+
+          web3.eth.getBalance(account, function(err, balance) {
+            if (err === null) {
+              $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH");
+            }
+          })
+        }
       }
-    });
+
+    );
 
     web3.version.getNetwork((err, netId) => {
       var networkType;
@@ -103,7 +118,7 @@ App = {
 
       switch (stage.toString()) {
         case "0":
-          stageName = "PreICO"
+          stageName = "Pre ICO"
           break;
         case "1":
           stageName = "ICO"
