@@ -4,6 +4,7 @@ App = {
   account: "0x0",
   loading: false,
   contractCreatorAddress: "0x627306090abab3a6e1400e9345bc60c78a8bef57",
+  tokenAbi: null,
 
   init: function() {
     return App.initWeb3();
@@ -20,7 +21,7 @@ App = {
     }
     web3 = new Web3(App.web3Provider);
 
-    App.displayAccountInfo();
+    // App.displayAccountInfo();
 
     return App.initContract();
   },
@@ -33,6 +34,13 @@ App = {
       App.contracts.SpokTokenSale.setProvider(App.web3Provider);
 
       return App.reloadDashboardData();
+    }).then(function() {
+      $.getJSON('SpokToken.json', function(spokTokenArtifact) {
+        App.contracts.SpokToken = TruffleContract(spokTokenArtifact);
+        App.contracts.SpokToken.setProvider(App.web3Provider);
+
+        return App.displayAccountInfo();
+      });
     });
   },
 
@@ -59,6 +67,31 @@ App = {
               $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH");
             }
           })
+
+          // if
+          //
+          // var tokenContractAddress =
+          //
+          // if (App.contracts.SpokToken !== null) {
+          //   if (App.contracts.SpokToken.abi !== null) {
+          //     var tokenContract = web3.eth.contract(App.contracts.SpokToken.abi).at(App.account);
+          //     // var balance = tokenContract.balanceOf(App.account)
+          //     // console.log('tokenContract');
+          //     // console.log(App.account);
+          //     //
+          //     // console.log('balance');
+          //     // console.log(App.account);
+          //   }
+          // }
+
+
+          // web3.eth.call({
+          //   to: App.account,
+          //   data: App.  contracts.SpokToken.methods.balanceOf(App.account).encodeABI()
+          // }).then(function(balance) {
+          //   console.log("The balance");
+          //   console.log(balance);
+          // });
         }
       }
 
@@ -91,6 +124,25 @@ App = {
       $('#networkId').text(networkType);
 
     });
+
+
+    App.contracts.SpokToken.deployed().then(function(instance) {
+      var accountWithNoIdentifier = (App.account).substring(2);
+      var contractData = ('0x70a08231000000000000000000000000' + accountWithNoIdentifier);
+      web3.eth.call({
+        to: instance.address,
+        data: contractData
+      }, function(err, result) {
+        if (result) {
+          var spokTokenBalanceWei = new BigNumber(result).toString();
+          var spokTokenBalance = web3.fromWei(spokTokenBalanceWei, 'ether');
+          $('#tokenBalance').text(spokTokenBalance);
+        } else {
+          console.log(err); // Dump errors here
+        }
+      });
+    });
+
   },
 
   reloadDashboardData: function() {
@@ -99,8 +151,6 @@ App = {
       return;
     }
     App.loading = true;
-
-    App.displayAccountInfo();
 
     var tokenSaleInstance;
 
@@ -133,10 +183,6 @@ App = {
       $('#currentStage').text(stageName);
       $('#currentRaised').text(etherRaised);
       $('#cap').text(etherCap + " ETH");
-
-
-
-
       App.loading = false;
     }).catch(function(err) {
       console.error(err.message);
