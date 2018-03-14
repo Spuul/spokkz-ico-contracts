@@ -72,6 +72,28 @@
         <div class="col-md-12">
           <h4>Contract Address</h4>
           <samp id="contractAddress"> ~ </samp>
+          <div class="row mt-4">
+            <div class="col-md-12">
+              <h4>Buy using MetaMask</h4>
+              <form>
+                <div class="form-row align-items-center">
+                  <div class="col-auto">
+                    <label class="sr-only" for="inlineFormInputGroup">ETH</label>
+                    <div class="input-group mb-4">
+                      <div class="input-group-prepend">
+                        <div class="input-group-text">ETH</div>
+                      </div>
+                      <input id="amount" type="text" class="form-control" id="inlineFormInputGroup" placeholder="0.0">
+                    </div>
+                  </div>
+                  <div class="col-auto">
+                    <button type="submit" class="btn btn-primary mb-4" onclick="App.buyToken(); return false;">Buy</button>
+                  </div>
+                </div>
+              </form>
+            </div>
+          </div>
+
         </div>
         <!-- <nav class="nav nav-pills nav-justified">
           <a class="nav-link active" href="#">Active</a>

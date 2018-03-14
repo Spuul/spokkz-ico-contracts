@@ -4,7 +4,7 @@ App = {
   account: "0x0",
   loading: false,
   contractCreatorAddress: "0x627306090abab3a6e1400e9345bc60c78a8bef57",
-  tokenAbi: null,
+  contractAddress: null,
 
   init: function() {
     return App.initWeb3();
@@ -205,7 +205,35 @@ App = {
     //   console.error(err.message);
     //   App.loading = false;
   },
-};
+
+  buyToken: function() {
+
+    var _amount = web3.toWei(parseFloat($('#amount').val() || 0), "ether");
+
+    if (_amount == 0) {
+      // nothing to sell
+      return false;
+    }
+
+    console.log('hello');
+
+    App.contracts.SpokTokenSale.deployed().then(function(instance) {
+      web3.eth.sendTransaction({
+        from: App.account,
+        to: instance.address,
+        value: _amount
+      }, function(err, transactionHash) {
+        if (!err) {
+          console.log("sendTransaction: success");
+          console.log(transactionHash);
+        } else {
+          console.log("sendTransaction: fail");
+          console.log(err);
+        }
+      });
+    });
+  }
+}
 
 $(function() {
   $(window).on('load', function() {
