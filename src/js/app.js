@@ -67,31 +67,6 @@ App = {
               $('#accountBalance').text(web3.fromWei(balance, "ether") + " ETH");
             }
           })
-
-          // if
-          //
-          // var tokenContractAddress =
-          //
-          // if (App.contracts.SpokToken !== null) {
-          //   if (App.contracts.SpokToken.abi !== null) {
-          //     var tokenContract = web3.eth.contract(App.contracts.SpokToken.abi).at(App.account);
-          //     // var balance = tokenContract.balanceOf(App.account)
-          //     // console.log('tokenContract');
-          //     // console.log(App.account);
-          //     //
-          //     // console.log('balance');
-          //     // console.log(App.account);
-          //   }
-          // }
-
-
-          // web3.eth.call({
-          //   to: App.account,
-          //   data: App.  contracts.SpokToken.methods.balanceOf(App.account).encodeABI()
-          // }).then(function(balance) {
-          //   console.log("The balance");
-          //   console.log(balance);
-          // });
         }
       }
 
