@@ -1,6 +1,6 @@
 const SpokTokenSale = artifacts.require('SpokTokenSale');
 const SpokToken = artifacts.require('SpokToken');
-const capValue = 26260;
+const capValue = 30000;
 
 contract('SpokTokenSale', function(accounts) {
   it('should deploy the token and store the address', function(done) {
@@ -15,7 +15,7 @@ contract('SpokTokenSale', function(accounts) {
   it('should set default token sale stage to PreICO', function(done) {
     SpokTokenSale.deployed().then(async function(instance) {
       const stage = await instance.stage.call();
-      assert.equal(stage.toNumber(), 0, 'The stage couldn\'t be set to PreICO');
+      assert.equal(stage.toNumber(), 1, 'The stage couldn\'t be set to PreICO');
       done();
     });
   });
@@ -66,7 +66,7 @@ contract('SpokTokenSale', function(accounts) {
 
   it('should set variable `totalWeiRaisedDuringPreICO` correctly', function(done) {
     SpokTokenSale.deployed().then(async function(instance) {
-      var amount = await instance.totalWeiRaisedDuringPreICO.call();
+      var amount = await instance.totalWeiRaisedDuringPreICOStage.call();
       assert.equal(amount.toNumber(), web3.toWei(3, "ether"), 'Total ETH raised in PreICO was not calculated correctly');
       done();
     });
@@ -77,7 +77,7 @@ contract('SpokTokenSale', function(accounts) {
       var [_stage, _weiRaised, _cap] = await instance.getDashboardData.call();
       var weiRaised = await instance.weiRaised.call();
 
-      assert.equal(_stage.toNumber(), 0, 'The stage is not PreICO');
+      assert.equal(_stage.toNumber(), 1, 'The stage is not PreICO');
       assert.equal(_weiRaised.toNumber(), weiRaised, 'Total ETH raised in PreICO was not calculated correctly');
       assert.equal(web3.fromWei(_cap.toNumber(), "ether"), capValue, 'The default cap value is wrong');
       done();
