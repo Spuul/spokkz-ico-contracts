@@ -12,7 +12,7 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
     ICO
   }
 
-  TokenSaleStage public stage = TokenSaleStage.PreICO;
+  TokenSaleStage public stage = TokenSaleStage.Private;
 
   // Token Distribution
   // ==================

@@ -150,7 +150,10 @@ App = {
 
       switch (stage.toString()) {
         case "0":
-          stageName = "Pre ICO"
+          stageName = "Private"
+          break;
+        case "1":
+          stageName = "Pre-ICO"
           break;
         case "1":
           stageName = "ICO"
