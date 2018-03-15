@@ -45,10 +45,18 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
 
   // Constructor
   // ============
-  function SpokTokenSale(uint256 _rate, address _wallet, ERC20 _token, uint256 _cap) public
+  function SpokTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage, address _wallet, ERC20 _token, uint256 _cap) public
     CappedCrowdsale(_cap)
-    Crowdsale(_rate, _wallet, _token)
-    {}
+    Crowdsale(_rateDuringPrivateStage, _wallet, _token)
+    {
+      require(_rateDuringPrivateStage > 0);
+      require(_rateDuringPreICOStage > 0);
+      require(_rateDuringICOStage > 0);
+
+      rateDuringPrivateStage  = _rateDuringPrivateStage;
+      rateDuringPreICOStage   = _rateDuringPreICOStage;
+      rateDuringICOStage      = _rateDuringICOStage;
+    }
   // =============
 
   // Token Purchase
@@ -69,8 +77,8 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
   }
 
   // Get data for dashboard
-  function getDashboardData() public view returns (TokenSaleStage _stage, uint256 _weiRaised, uint256 _cap) {
-     return (stage, weiRaised, cap);
+  function getDashboardData() public view returns (TokenSaleStage _stage, uint256 _rate, uint256 _weiRaised, uint256 _cap, uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage) {
+     return (stage, rate, weiRaised, cap, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage);
   }
 
   /* function isOwner() public view returns (bool _senderIsOwner) {

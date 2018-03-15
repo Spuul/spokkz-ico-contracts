@@ -138,8 +138,13 @@ App = {
       return spokTokenSaleInstance.getDashboardData();
     }).then(function(dashboardData) {
       var stage = dashboardData[0];
-      var etherRaised = web3.fromWei(dashboardData[1].toNumber(), 'ether');
-      var etherCap = web3.fromWei(dashboardData[2].toNumber(), 'ether');
+      var rate = dashboardData[1];
+      var etherRaised = web3.fromWei(dashboardData[2].toNumber(), 'ether');
+      var etherCap = web3.fromWei(dashboardData[3].toNumber(), 'ether');
+
+      var privateRate = dashboardData[4];
+      var preICORate = dashboardData[5];
+      var ICORate = dashboardData[6];
 
       var cap = dashboardData[2];
 
@@ -156,8 +161,14 @@ App = {
           break;
       }
       $('#currentStage').text(stageName);
+      $('#currentRate').text(rate + " SPK");
       $('#currentRaised').text(etherRaised);
       $('#cap').text(etherCap + " ETH");
+
+      $('#privateRate').text(privateRate + " SPK");
+      $('#preICORate').text(preICORate + " SPK");
+      $('#ICORate').text(ICORate + " SPK");
+
       App.loading = false;
     }).catch(function(err) {
       console.error(err.message);
