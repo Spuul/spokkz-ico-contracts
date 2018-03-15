@@ -2,12 +2,20 @@ var SpokToken = artifacts.require("./SpokToken.sol");
 var SpokTokenSale = artifacts.require("./SpokTokenSale.sol")
 
 module.exports = function(deployer, network, accounts) {
-  const rateDuringPrivateStage = 20000; // 1 ETH will get 20 thousand tokens, about 50% discount
-  const rateDuringPreICOStage = 11764; // 1 ETH will get 11765 tokens, about 15% discount
-  const rateDuringICOStage = 10000 // 1 ETH will get 10 thousand tokens, no discount
+
+  // Testing Parameters
+  // ==================
+  const rateDuringPrivateStage = 2000000; // 1 ETH will get 2 million tokens, about 50% discount
+  const rateDuringPreICOStage = 1176470; // 1 ETH will get 1176470 tokens, about 15% discount
+  const rateDuringICOStage = 1000000; // 1 ETH will get 1 million tokens, no discount
+
+  const cap = 300000000000000000000; // cap is 300 ethers
+  // ==================
+
+
 
   const wallet = accounts[9];
-  const cap = 30000000000000000000000; // cap is 30000 ethers
+
 
   deployer.deploy(SpokToken).then(function() {
     return deployer.deploy(

@@ -12,11 +12,15 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
     ICO
   }
 
+  mapping (uint256 => uint256) public totalTokensForSalePerStage;
+  mapping (uint256 => uint256) public totalWeiRaisedPerStage;
+
   TokenSaleStage public stage = TokenSaleStage.Private;
+
 
   // Token Distribution
   // ==================
-  uint256 public totalSupplyOfTokens  =  1000000000 * (10 ** uint256(18));  // total supply is 1 billion of tokens
+  uint256 public maxSupplyOfTokens  =  1000000000 * (10 ** uint256(18));  // total supply is 1 billion of tokens
   uint256 public totalTokensForSale   =  300000000 * (10 ** uint256(18));   // tokens for sale is 300 million, 30% of the total supply
 
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale
@@ -24,19 +28,19 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
   uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale
   // ==================
 
-  // Amount raised in each token sale stage
+  /* // Amount raised in each token sale stage
   // ==================
   uint256 public totalWeiRaisedDuringPrivateStage;
   uint256 public totalWeiRaisedDuringPreICOStage;
   uint256 public totalWeiRaisedDuringICOStage;
-  // ==================
+  // ================== */
 
 
   // Rates on each stage
   // ==================
-  uint256 public rateDuringPrivateStage = 20000;  // 1 ETH will get 20 thousand tokens, about 50% discount
-  uint256 public rateDuringPreICOStage  = 11764;  // 1 ETH will get 11765 tokens, about 15% discount
-  uint256 public rateDuringICOStage     = 10000;  // 1 ETH will get 10 thousand tokens, no discount
+  uint256 public rateDuringPrivateStage;
+  uint256 public rateDuringPreICOStage;
+  uint256 public rateDuringICOStage;
   // ==================
 
   // Events
@@ -56,34 +60,64 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
       rateDuringPrivateStage  = _rateDuringPrivateStage;
       rateDuringPreICOStage   = _rateDuringPreICOStage;
       rateDuringICOStage      = _rateDuringICOStage;
+
+      totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] = totalTokensForSaleDuringPrivateStage;
+      totalTokensForSalePerStage[uint256(TokenSaleStage.PreICO)]  = totalTokensForSaleDuringPreICOStage;
+      totalTokensForSalePerStage[uint256(TokenSaleStage.ICO)]     = totalTokensForSaleDuringICOStage;
+
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)] = 0;
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.PreICO)] = 0;
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.ICO)] = 0;
+
     }
   // =============
 
   // Token Purchase
   function() external payable {
     uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
+    uint256 totalSupplyAfterPurchase = token.totalSupply() + tokensThatWillBeMintedAfterPurchase;
 
-    if ((stage == TokenSaleStage.PreICO) && ( token.totalSupply() + tokensThatWillBeMintedAfterPurchase > totalTokensForSaleDuringPreICOStage)) {
-      msg.sender.transfer(msg.value); // Refund them
-      EthRefunded("PreICO Limit Hit");
-      return;
-    }
-
+    require(!tokenLimitOfCurrentStageIsReached(totalSupplyAfterPurchase));
     buyTokens(msg.sender);
 
-    if (stage == TokenSaleStage.PreICO) {
-        totalWeiRaisedDuringPreICOStage = totalWeiRaisedDuringPreICOStage.add(msg.value);
-    }
+    totalWeiRaisedPerStage[uint256(stage)] = totalWeiRaisedPerStage[uint256(stage)].add(msg.value);
   }
 
   // Get data for dashboard
-  function getDashboardData() public view returns (TokenSaleStage _stage, uint256 _rate, uint256 _weiRaised, uint256 _cap, uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage) {
-     return (stage, rate, weiRaised, cap, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage);
+  function getDashboardData() public view returns (
+    TokenSaleStage _stage,
+    uint256 _rate,
+    uint256 _weiRaised,
+    uint256 _cap,
+    uint256 _rateDuringPrivateStage,
+    uint256 _rateDuringPreICOStage,
+    uint256 _rateDuringICOStage,
+    uint256 _totalTokensForSaleDuringPrivateStage,
+    uint256 _totalTokensForSaleDuringPreICOStage,
+    uint256 _totalTokensForSaleDuringICOStage,
+    uint256 _totalWeiRaisedDuringPrivateStage,
+    uint256 _totalWeiRaisedDuringPreICOStage,
+    uint256 _totalWeiRaisedDuringICOStage)
+    {
+     return (
+       stage,
+       rate,
+       weiRaised,
+       cap,
+       rateDuringPrivateStage,
+       rateDuringPreICOStage,
+       rateDuringICOStage,
+       totalTokensForSaleDuringPrivateStage,
+       totalTokensForSaleDuringPreICOStage,
+       totalTokensForSaleDuringICOStage,
+       totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)],
+       totalWeiRaisedPerStage[uint256(TokenSaleStage.PreICO)],
+       totalWeiRaisedPerStage[uint256(TokenSaleStage.ICO)]
+    );
   }
 
-  /* function isOwner() public view returns (bool _senderIsOwner) {
-    bool senderIsOwner = false;
-    senderIsOwner = (msg.sender == owner);
-    return senderIsOwner;
-  } */
+  function tokenLimitOfCurrentStageIsReached(uint256 tokenNumber) public view returns (bool) {
+    bool result = (tokenNumber > totalTokensForSalePerStage[uint256(stage)]);
+    return result;
+  }
 }

@@ -33,15 +33,8 @@
     </div>
 
     <div class="row mb-5">
-      <div class="col-md-3">
-        <div class="card mb-3 box-shadow">
-          <div class="card-body text-center">
-            <h1 id="currentStage" class="fs30 mt5 mbn"> ~ </h1>
-            <h6>STAGE</h6>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
+
+      <!-- <div class="col-md-3">
         <div class="card mb-3 box-shadow">
           <div class="card-body text-center">
             <h1 id="currentRate" class="fs30 mt5 mbn"> ~ </h1>
@@ -49,34 +42,6 @@
           </div>
         </div>
       </div>
-      <div class="col-md-3">
-        <div class="card mb-3 box-shadow">
-          <div class="card-body text-center">
-            <h1 id="currentRaised" class="fs30 mt5 mbn"> ~ </h1>
-            <h6>RAISED</h6>
-          </div>
-        </div>
-      </div>
-      <div class="col-md-3">
-        <div class="card mb-3 box-shadow">
-          <div class="card-body text-center">
-            <h1 id="goal" class="fs30 mt5 mbn"> ~ </h1>
-            <h6>GOAL</h6>
-          </div>
-        </div>
-      </div>
-    </div>
-
-    <div class="row mb-5">
-      <div class="col-md-3">
-        <div class="card mb-3 box-shadow">
-          <div class="card-body text-center">
-            <h1 id="cap" class="fs30 mt5 mbn"> ~ </h1>
-            <h6>CAP</h6>
-          </div>
-        </div>
-      </div>
-
       <div class="col-md-3">
         <div class="card mb-3 box-shadow">
           <div class="card-body text-center">
@@ -100,13 +65,80 @@
             <h6>ICO RATE</h6>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
     <div class="row">
-      <div class="col-md-7">
+      <div class="col-md-8">
         <div class="col-md-12">
-          <h4>Contract Address</h4>
-          <samp id="contractAddress"> ~ </samp>
+          <h4 class="mb-3">ICO Infomation</h4>
+          <table class="table table-bordered">
+            <tbody>
+              <tr>
+                <th scope="row">Contract Address</th>
+                <td id="contractAddress">~</td>
+
+              </tr>
+              <tr>
+                <th scope="row">Goal</th>
+                <td id="goal">~</td>
+
+              </tr>
+              <tr>
+                <th scope="row">Cap</th>
+                <td id="cap">~</td>
+              </tr>
+              <tr>
+                <th scope="row">Total Raised</th>
+                <td id="currentRaised">~</td>
+              </tr>
+              <tr>
+                <th scope="row">Stages</th>
+                <td> Private, Pre-ICO, ICO</td>
+              </tr>
+              <tr>
+                <th scope="row">Current Stage</th>
+                <td id="currentStage" class="text-success"> ~ </td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <div class="col-md-12">
+          <h5 class="mb-3">Stage Information</h5>
+          <table class="table table-bordered">
+            <thead>
+              <tr>
+                <th scope="col">Stage</th>
+                <th scope="col">Rate Per ETH</th>
+                <th scope="col">Tokens For Sale </th>
+                <th scope="col">Tokens Sold</th>
+                <th scope="col"> Raised</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td>Private</td>
+                <td id="privateRate">~</td>
+                <td id="privateTokenForSale">~</td>
+                <td id="privateTokenSold">~</td>
+                <td id="privateEtherRaised">~</td>
+              </tr>
+              <tr>
+                <td>Pre-ICO</td>
+                <td id="preICORate">~</td>
+                <td id="preICORateTokenForSale">~</td>
+                <td id="preICOETokenSold">~</td>
+                <td id="preICOEtherRaised">~</td>
+              </tr>
+              <tr>
+                <td>ICO</td>
+                <td id="ICORate">~</td>
+                <td id="ICORateTokenForSale">~</td>
+                <td id="ICOTokenSold">~</td>
+                <td id="ICOEtherRaised">~</td>
+              </tr>
+            </tbody>
+          </table>
+
           <div class="row mt-4">
             <div class="col-md-12">
               <h4>Buy using MetaMask</h4>
@@ -130,6 +162,7 @@
           </div>
 
         </div>
+
         <!-- <nav class="nav nav-pills nav-justified">
           <a class="nav-link active" href="#">Active</a>
           <a class="nav-link" href="#">Longer nav link</a>
@@ -137,7 +170,7 @@
           <a class="nav-link disabled" href="#">Disabled</a>
         </nav> -->
       </div>
-      <div class="col-5">
+      <div class="col-4">
         <h4 class="d-flex justify-content-between align-items-center mb-3">
             <span>Your Account</span>
           </h4>
