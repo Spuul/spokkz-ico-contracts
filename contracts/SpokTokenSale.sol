@@ -3,8 +3,9 @@ pragma solidity ^0.4.18;
 import './SpokToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol';
 
-contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
+contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale {
 
   enum TokenSaleStage {
     Private,
@@ -26,15 +27,6 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale
   uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale
   uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale
-  // ==================
-
-  /* // Amount raised in each token sale stage
-  // ==================
-  uint256 public totalWeiRaisedDuringPrivateStage;
-  uint256 public totalWeiRaisedDuringPreICOStage;
-  uint256 public totalWeiRaisedDuringICOStage;
-  // ================== */
-
 
   // Rates on each stage
   // ==================
@@ -49,8 +41,10 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale {
 
   // Constructor
   // ============
-  function SpokTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage, address _wallet, ERC20 _token, uint256 _cap) public
+  function SpokTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage, address _wallet, ERC20 _token, uint256 _cap, uint256 _goal, uint256 _openingTime, uint256 _closingTime) public
     CappedCrowdsale(_cap)
+    TimedCrowdsale(_openingTime, _closingTime)
+    RefundableCrowdsale(_goal)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
     {
       require(_rateDuringPrivateStage > 0);
