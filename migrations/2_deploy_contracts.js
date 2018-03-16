@@ -7,7 +7,7 @@ module.exports = function(deployer, network, accounts) {
   // ==================
   // INFO: Commented out the TimedCrowdsale require(_openingTime >= now) for easy testing.
   const openingTime = Math.round((new Date(Date.now() - 86400000).getTime()) / 1000); // Yesterday
-  const closingTime = Math.round((new Date().getTime() + (86400000 * 70)) / 1000); // Today + 70 days
+  const closingTime = Math.round((new Date().getTime() + (86400000 * 20)) / 1000); // Today + 20 days
 
   const rateDuringPrivateStage = 2000000; // 1 ETH will get 2 million tokens, about 50% discount
   const rateDuringPreICOStage = 1176470; // 1 ETH will get 1176470 tokens, about 15% discount

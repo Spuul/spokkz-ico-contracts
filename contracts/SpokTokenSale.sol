@@ -80,33 +80,22 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
   // Get data for dashboard
   function getDashboardData() public view returns (
     TokenSaleStage _stage,
-    uint256 _rate,
     uint256 _weiRaised,
     uint256 _cap,
-    uint256 _rateDuringPrivateStage,
-    uint256 _rateDuringPreICOStage,
-    uint256 _rateDuringICOStage,
-    uint256 _totalTokensForSaleDuringPrivateStage,
-    uint256 _totalTokensForSaleDuringPreICOStage,
-    uint256 _totalTokensForSaleDuringICOStage,
-    uint256 _totalWeiRaisedDuringPrivateStage,
-    uint256 _totalWeiRaisedDuringPreICOStage,
-    uint256 _totalWeiRaisedDuringICOStage)
+    uint256 _goal,
+    uint256 _openingTime,
+    uint256 _closingTime,
+    uint256 _time)
     {
+      uint256 time = now;
      return (
        stage,
-       rate,
        weiRaised,
        cap,
-       rateDuringPrivateStage,
-       rateDuringPreICOStage,
-       rateDuringICOStage,
-       totalTokensForSaleDuringPrivateStage,
-       totalTokensForSaleDuringPreICOStage,
-       totalTokensForSaleDuringICOStage,
-       totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)],
-       totalWeiRaisedPerStage[uint256(TokenSaleStage.PreICO)],
-       totalWeiRaisedPerStage[uint256(TokenSaleStage.ICO)]
+       goal,
+       openingTime,
+       closingTime,
+       time
     );
   }
 
