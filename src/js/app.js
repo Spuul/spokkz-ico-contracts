@@ -47,6 +47,9 @@ App = {
   displayAccountInfo: function() {
     web3.eth.getCoinbase(function(err, account) {
         if (err === null) {
+          if (!web3.isAddress(App.account)) {
+            return;
+          }
 
           App.account = account;
 
@@ -102,6 +105,10 @@ App = {
 
 
     App.contracts.SpokToken.deployed().then(function(instance) {
+
+      if (!web3.isAddress(App.account)) {
+        return;
+      }
       var accountWithNoIdentifier = (App.account).substring(2);
       var contractData = ('0x70a08231000000000000000000000000' + accountWithNoIdentifier);
       web3.eth.call({
@@ -138,33 +145,12 @@ App = {
       return spokTokenSaleInstance.getTokenSaleData();
     }).then(function(dashboardData) {
       var stage = dashboardData[0];
-      // var rate = dashboardData[1];
       var etherRaised = web3.fromWei(dashboardData[1].toNumber(), 'ether');
       var etherCap = web3.fromWei(dashboardData[2].toNumber(), 'ether');
-
-      // var privateRate = dashboardData[4];
-      // var preICORate = dashboardData[5];
-      // var ICORate = dashboardData[6];
-
-      // var privateTokenForSale = web3.fromWei(dashboardData[7].toNumber(), 'ether');
-      // var preICORateTokenForSale = web3.fromWei(dashboardData[8].toNumber(), 'ether');
-      // var ICORateTokenForSale = web3.fromWei(dashboardData[9].toNumber(), 'ether');
-
-      // var privateEtherRaised = web3.fromWei(dashboardData[10].toNumber(), 'ether');
-      // var preICOEtherRaised = web3.fromWei(dashboardData[11].toNumber(), 'ether');
-      // var ICOEtherRaised = web3.fromWei(dashboardData[12].toNumber(), 'ether');
-
       var goal = web3.fromWei(dashboardData[3].toNumber(), 'ether');
       var openingTime = dashboardData[4];
       var closingTime = dashboardData[5];
       var now = dashboardData[6];
-
-      // var privateTokenSold = privateEtherRaised * privateRate;
-      // var preICOETokenSold = preICOEtherRaised * preICORate;
-      // var ICOTokenSold = ICOEtherRaised * ICORate;
-
-      // var cap = dashboardData[2];
-
       switch (stage.toString()) {
         case "0":
           stageName = "Private"
@@ -181,52 +167,60 @@ App = {
           break;
       }
       $('#currentStage').text(stageName);
-      // $('#currentRate').text(rate + " SPK");
+
       $('#currentRaised').text(etherRaised + " ETH");
       $('#cap').text(etherCap + " ETH");
-
-      // $('#privateRate').text(privateRate + " SPK");
-      // $('#preICORate').text(preICORate + " SPK");
-      // $('#ICORate').text(ICORate + " SPK");
-
-      // $('#privateTokenForSale').text(privateTokenForSale + " SPK");
-      // $('#preICORateTokenForSale').text(preICORateTokenForSale + " SPK");
-      // $('#ICORateTokenForSale').text(ICORateTokenForSale + " SPK");
-
-      // $('#privateEtherRaised').text(privateEtherRaised + " SPK");
-      // $('#preICOEtherRaised').text(preICOEtherRaised + " SPK");
-      // $('#ICOEtherRaised').text(ICOEtherRaised + " SPK");
-
-      // $('#privateTokenSold').text(privateTokenSold + " SPK");
-      // $('#preICOETokenSold').text(preICOETokenSold + " SPK");
-      // $('#ICOTokenSold').text(ICOTokenSold + " SPK");
-
       $('#goal').text(goal + " ETH")
       $('#openingTime').text(moment.unix(openingTime).utc());
       $('#closingTime').text(moment.unix(closingTime).utc());
       $('#now').text(moment().utc());
 
       App.loading = false;
+    }).then(function() {
+      console.log("Stage Data");
+      var privatePromise = spokTokenSaleInstance.getTokenSaleDataByStage(0);
+      var preICOPromise = spokTokenSaleInstance.getTokenSaleDataByStage(1);
+      var ICOPromise = spokTokenSaleInstance.getTokenSaleDataByStage(2);
+
+      Promise.all([privatePromise, preICOPromise, ICOPromise]).then(function(values) {
+
+        var privateRate = values[0][0];
+        var preICORate = values[1][0];
+        var ICORate = values[2][0];
+
+        var privateTokenForSale = web3.fromWei(values[0][1].toNumber(), 'ether');
+        var preICORateTokenForSale = web3.fromWei(values[1][1].toNumber(), 'ether');
+        var ICORateTokenForSale = web3.fromWei(values[2][1].toNumber(), 'ether');
+
+        var privateEtherRaised = web3.fromWei(values[0][2].toNumber(), 'ether');
+        var preICOEtherRaised = web3.fromWei(values[1][2].toNumber(), 'ether');
+        var ICOEtherRaised = web3.fromWei(values[2][2].toNumber(), 'ether');
+
+        var privateTokenSold = privateEtherRaised * privateRate;
+        var preICOETokenSold = preICOEtherRaised * preICORate;
+        var ICOTokenSold = ICOEtherRaised * ICORate;
+
+        $('#privateRate').text(privateRate + " SPK");
+        $('#preICORate').text(preICORate + " SPK");
+        $('#ICORate').text(ICORate + " SPK");
+
+        $('#privateTokenForSale').text(privateTokenForSale + " SPK");
+        $('#preICORateTokenForSale').text(preICORateTokenForSale + " SPK");
+        $('#ICORateTokenForSale').text(ICORateTokenForSale + " SPK");
+
+        $('#privateEtherRaised').text(privateEtherRaised + " SPK");
+        $('#preICOEtherRaised').text(preICOEtherRaised + " SPK");
+        $('#ICOEtherRaised').text(ICOEtherRaised + " SPK");
+
+        $('#privateTokenSold').text(privateTokenSold + " SPK");
+        $('#preICOETokenSold').text(preICOETokenSold + " SPK");
+        $('#ICOTokenSold').text(ICOTokenSold + " SPK");
+      });
+
     }).catch(function(err) {
       console.error(err.message);
       App.loading = false;
     });
-
-    //   return chainListInstance.getArticlesForSale();
-    // }).then(function(articleIds) {
-    //   // retrieve the article placeholder and clear it
-    //   $('#articlesRow').empty();
-    //
-    //   for(var i = 0; i < articleIds.length; i++) {
-    //     var articleId = articleIds[i];
-    //     chainListInstance.articles(articleId.toNumber()).then(function(article){
-    //       App.displayArticle(article[0], article[1], article[3], article[4], article[5]);
-    //     });
-    //   }
-    //   App.loading = false;
-    // }).catch(function(err) {
-    //   console.error(err.message);
-    //   App.loading = false;
   },
 
   buyToken: function() {

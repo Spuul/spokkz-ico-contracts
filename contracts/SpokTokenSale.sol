@@ -13,6 +13,9 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
     ICO
   }
 
+  uint constant numberOFStages = 3;
+
+  mapping (uint256 => uint256) public ratePerStage;
   mapping (uint256 => uint256) public totalTokensForSalePerStage;
   mapping (uint256 => uint256) public totalWeiRaisedPerStage;
 
@@ -27,13 +30,6 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale
   uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale
   uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale
-
-  // Rates on each stage
-  // ==================
-  uint256 public rateDuringPrivateStage;
-  uint256 public rateDuringPreICOStage;
-  uint256 public rateDuringICOStage;
-  // ==================
 
   // Events
   event EthTransferred(string text);
@@ -51,9 +47,9 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
       require(_rateDuringPreICOStage > 0);
       require(_rateDuringICOStage > 0);
 
-      rateDuringPrivateStage  = _rateDuringPrivateStage;
-      rateDuringPreICOStage   = _rateDuringPreICOStage;
-      rateDuringICOStage      = _rateDuringICOStage;
+      ratePerStage[uint256(TokenSaleStage.Private)] = _rateDuringPrivateStage;
+      ratePerStage[uint256(TokenSaleStage.PreICO)] = _rateDuringPreICOStage;
+      ratePerStage[uint256(TokenSaleStage.ICO)] = _rateDuringICOStage;
 
       totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] = totalTokensForSaleDuringPrivateStage;
       totalTokensForSalePerStage[uint256(TokenSaleStage.PreICO)]  = totalTokensForSaleDuringPreICOStage;
@@ -77,7 +73,6 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
     totalWeiRaisedPerStage[uint256(stage)] = totalWeiRaisedPerStage[uint256(stage)].add(msg.value);
   }
 
-  // Get data for dashboard
   function getTokenSaleData() public view returns (
     TokenSaleStage _stage,
     uint256 _weiRaised,
@@ -85,19 +80,34 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
     uint256 _goal,
     uint256 _openingTime,
     uint256 _closingTime,
-    uint256 _time)
-    {
+    uint256 _time) {
+
       uint256 time = now;
-     return (
-       stage,
-       weiRaised,
-       cap,
-       goal,
-       openingTime,
-       closingTime,
-       time
-    );
+      return (
+        stage,
+        weiRaised,
+        cap,
+        goal,
+        openingTime,
+        closingTime,
+        time
+     );
   }
+
+  function getTokenSaleDataByStage(uint256 _stageNumber) public view returns (
+    uint256 _rateInStage,
+    uint256 _tokensForSaleInStage,
+    uint256 _weiRaisedInStage) {
+
+      require(_stageNumber < numberOFStages);
+
+      uint256 rateInStage = ratePerStage[_stageNumber];
+      uint256 tokensForSaleInStage = totalTokensForSalePerStage[_stageNumber];
+      uint256 weiRaisedInStage = totalWeiRaisedPerStage[_stageNumber];
+
+      return (rateInStage, tokensForSaleInStage, weiRaisedInStage);
+  }
+
 
   function tokenLimitOfCurrentStageIsReached(uint256 tokenNumber) public view returns (bool) {
     bool result = (tokenNumber > totalTokensForSalePerStage[uint256(stage)]);
