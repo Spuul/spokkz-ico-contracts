@@ -78,7 +78,7 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale 
   }
 
   // Get data for dashboard
-  function getDashboardData() public view returns (
+  function getTokenSaleData() public view returns (
     TokenSaleStage _stage,
     uint256 _weiRaised,
     uint256 _cap,

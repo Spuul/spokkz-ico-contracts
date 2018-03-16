@@ -135,7 +135,7 @@ App = {
     App.contracts.SpokTokenSale.deployed().then(function(instance) {
       spokTokenSaleInstance = instance;
       $('#contractAddress').text(instance.address);
-      return spokTokenSaleInstance.getDashboardData();
+      return spokTokenSaleInstance.getTokenSaleData();
     }).then(function(dashboardData) {
       var stage = dashboardData[0];
       // var rate = dashboardData[1];
