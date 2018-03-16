@@ -47,11 +47,12 @@ App = {
   displayAccountInfo: function() {
     web3.eth.getCoinbase(function(err, account) {
         if (err === null) {
+
+          App.account = account;
+
           if (!web3.isAddress(App.account)) {
             return;
           }
-
-          App.account = account;
 
           $('#accountAddress').text(App.account);
 
@@ -103,6 +104,11 @@ App = {
 
     });
 
+    App.contracts.SpokTokenSale.deployed().then(function(instance) {
+      return spokTokenSaleInstance.whitelist(App.account);
+    }).then(function(whitelisted) {
+      $("#whitelisted").text(whitelisted ? 'Yes' : 'No')
+    });
 
     App.contracts.SpokToken.deployed().then(function(instance) {
 

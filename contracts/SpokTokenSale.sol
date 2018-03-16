@@ -2,10 +2,11 @@ pragma solidity ^0.4.18;
 
 import './SpokToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol';
 
-contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, RefundableCrowdsale {
+contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, RefundableCrowdsale {
 
   enum TokenSaleStage {
     Private,
