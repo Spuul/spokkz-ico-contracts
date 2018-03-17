@@ -74,6 +74,18 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale
     totalWeiRaisedPerStage[uint256(stage)] = totalWeiRaisedPerStage[uint256(stage)].add(msg.value);
   }
 
+  function startNextSaleStage() public onlyOwner {
+    require(stage != TokenSaleStage.ICO;);
+
+    if (stage == TokenSaleStage.Private) {
+      stage = TokenSaleStage.PreICO;
+    } else if (stage == TokenSaleStage.PreICO) {
+      stage = TokenSaleStage.ICO;
+    }
+
+    rate = ratePerStage[uint256(stage)];
+  }
+
   function getTokenSaleData() public view returns (
     TokenSaleStage _stage,
     uint256 _weiRaised,
