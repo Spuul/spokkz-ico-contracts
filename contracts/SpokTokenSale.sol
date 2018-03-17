@@ -26,11 +26,17 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale
   // Token Distribution
   // ==================
   uint256 public maxSupplyOfTokens  =  1000000000 * (10 ** uint256(18));  // total supply is 1 billion of tokens
-  uint256 public totalTokensForSale   =  300000000 * (10 ** uint256(18));   // tokens for sale is 300 million, 30% of the total supply
 
-  uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale
-  uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale
-  uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale
+  uint256 public tokensForEcosystem = 450000000 * (10 ** uint256(18));  // tokens for Ecosystem is 450 million, 45% of token supply;
+  uint256 public tokensForTeam      = 200000000 * (10 ** uint256(18));  // tokens for Team is 200 million, 20% of token supply;
+  uint256 public tokensForBounty    = 50000000 * (10 ** uint256(18));   // tokens for Bounty is 200 million, 20% of token supply;
+  uint256 public totalTokensForSale =  300000000 * (10 ** uint256(18));   // tokens for sale is 300 million, 30% of the total supply
+
+  uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale, 4.5% of token supply
+  uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale, 21% of token supply
+  uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
+
+
 
   // Events
   event EthTransferred(string text);
@@ -86,6 +92,24 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale
     rate = ratePerStage[uint256(stage)];
   }
 
+  function finish(address _teamFund, address _ecosystemFund, address _bountyFund) public onlyOwner {
+
+      require(!isFinalized);
+      uint256 alreadyMinted = token.totalSupply();
+      require(alreadyMinted < maxSupplyOfTokens);
+
+      uint256 unsoldTokens = totalTokensForSale - alreadyMinted;
+
+      if (unsoldTokens > 0) {
+        tokensForEcosystem = tokensForEcosystem + unsoldTokens;
+      }
+
+      token.mint(_teamFund,tokensForTeam);
+      token.mint(_ecosystemFund,tokensForEcosystem);
+      token.mint(_bountyFund,tokensForBounty);
+      finalize();
+  }
+
   function getTokenSaleData() public view returns (
     TokenSaleStage _stage,
     uint256 _weiRaised,
@@ -126,4 +150,11 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale
     bool result = (tokenNumber > totalTokensForSalePerStage[uint256(stage)]);
     return result;
   }
+
+ // TODO: REMOVE THIS FUNCTION ONCE YOU ARE READY FOR PRODUCTION
+ // USEFUL FOR TESTING `finish()` FUNCTION
+
+function hasEnded() public view onlyOwner returns (bool) {
+   return true;
+ }
 }
