@@ -27,16 +27,16 @@ contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale
   // ==================
   uint256 public maxSupplyOfTokens  =  1000000000 * (10 ** uint256(18));  // total supply is 1 billion of tokens
 
-  uint256 public tokensForEcosystem = 450000000 * (10 ** uint256(18));  // tokens for Ecosystem is 450 million, 45% of token supply;
-  uint256 public tokensForTeam      = 200000000 * (10 ** uint256(18));  // tokens for Team is 200 million, 20% of token supply;
-  uint256 public tokensForBounty    = 50000000 * (10 ** uint256(18));   // tokens for Bounty is 200 million, 20% of token supply;
-  uint256 public totalTokensForSale =  300000000 * (10 ** uint256(18));   // tokens for sale is 300 million, 30% of the total supply
+  uint256 public tokensForEcosystem           = 430000000 * (10 ** uint256(18));  // tokens for Ecosystem is 430 million, 43% of token supply
+  uint256 public totalTokensForSale           = 300000000 * (10 ** uint256(18));   // tokens for sale is 300 million, 30% of the total supply
+  uint256 public tokensForTeam                = 140000000 * (10 ** uint256(18));  // tokens for Team is 140 million, 14% of token supply
+  uint256 public tokensForAdvisors            = 60000000 * (10 ** uint256(18));   // tokens for Advisors is 60 million, 6% of token supply
+  uint256 public tokensForLegalAndMarketing   = 60000000 * (10 ** uint256(18));   // tokens for Legal And Marketing is 60 million, 6% of token supply
+  uint256 public tokensForBounty              = 10000000 * (10 ** uint256(18));   // tokens for Bounty is 10 million, 1% of token supply
 
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale, 4.5% of token supply
   uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale, 21% of token supply
   uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
-
-
 
   // Events
   event EthTransferred(string text);
