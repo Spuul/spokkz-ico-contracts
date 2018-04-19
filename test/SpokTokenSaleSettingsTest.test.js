@@ -1,15 +1,33 @@
+import ether from '../node_modules/zeppelin-solidity/test/helpers/ether';
+
 const SpokTokenSale = artifacts.require('SpokTokenSale');
 const SpokToken = artifacts.require('SpokToken');
 
-// const capValue = 30000;
-const capValue = 300; // for dev
+const BigNumber = web3.BigNumber;
+
+const should = require('chai')
+  .use(require('chai-as-promised'))
+  .use(require('chai-bignumber')(BigNumber))
+  .should();
+
+const CAP = ether(50000);
+const PRIVATE_STAGE = new BigNumber(0);
+
+const MAX_SUPPLY_OF_TOKENS = ether(1000000000);
+const TOTAL_TOKENS_FOR_SALE = ether(300000000);
+
+const TOKENS_FOR_ECOSYSTEM = ether(430000000);
+const TOKENS_FOR_TEAM = ether(140000000);
+const TOKENS_FOR_ADVISORS = ether(60000000);
+const TOKENS_FOR_LEGAL_AND_MARKETING = ether(60000000);
+const TOKENS_FOR_BOUNTY = ether(10000000);
 
 contract('SpokTokenSale', function(accounts) {
-  it('should deploy the token and store the address', function(done) {
+
+  it('should set the correct cap', function(done) {
     SpokTokenSale.deployed().then(async function(instance) {
-      const token = await instance.token.call();
-      console.log("Spok Token Address: " + token);
-      assert(token, 'Token address couldn\'t be stored');
+      const cap = await instance.cap.call();
+      cap.should.be.bignumber.equal(CAP);
       done();
     });
   });
@@ -17,18 +35,56 @@ contract('SpokTokenSale', function(accounts) {
   it('should set default token sale stage to Private', function(done) {
     SpokTokenSale.deployed().then(async function(instance) {
       const stage = await instance.stage.call();
-      assert.equal(stage.toNumber(), 0, 'The stage couldn\'t be set to PreICO');
+      stage.should.be.bignumber.equal(PRIVATE_STAGE);
       done();
     });
   });
 
-  it('should set default cap of ethers during token sale', function(done) {
+  it('should set the token supply and distribution correctly', function(done) {
     SpokTokenSale.deployed().then(async function(instance) {
-      const cap = await instance.cap.call();
-      assert.equal(web3.fromWei(cap.toNumber(), "ether"), capValue, 'The default cap is wrong');
+      const maxSupplyOfTokens = await instance.maxSupplyOfTokens.call();
+
+      const totalTokensForSale = await instance.totalTokensForSale.call();
+      const tokensForEcosystem = await instance.tokensForEcosystem.call();
+      const tokensForTeam = await instance.tokensForTeam.call();
+      const tokensForAdvisors = await instance.tokensForAdvisors.call();
+      const tokensForLegalAndMarketing = await instance.tokensForLegalAndMarketing.call();
+      const tokensForBounty = await instance.tokensForBounty.call();
+
+      maxSupplyOfTokens.should.be.bignumber.equal(MAX_SUPPLY_OF_TOKENS);
+
+      totalTokensForSale.should.be.bignumber.equal(TOTAL_TOKENS_FOR_SALE);
+      tokensForEcosystem.should.be.bignumber.equal(TOKENS_FOR_ECOSYSTEM);
+      tokensForTeam.should.be.bignumber.equal(TOKENS_FOR_TEAM);
+      tokensForAdvisors.should.be.bignumber.equal(TOKENS_FOR_ADVISORS);
+      tokensForLegalAndMarketing.should.be.bignumber.equal(TOKENS_FOR_LEGAL_AND_MARKETING);
+      tokensForBounty.should.be.bignumber.equal(TOKENS_FOR_BOUNTY);
+
+      totalTokensForSale.plus(tokensForEcosystem)
+        .plus(tokensForTeam)
+        .plus(tokensForAdvisors)
+        .plus(tokensForLegalAndMarketing)
+        .plus(tokensForBounty).should.be.bignumber.equal(MAX_SUPPLY_OF_TOKENS);
+
       done();
     });
   });
+
+  // it('should set the rate per stage correctly', function(done) {
+  //   SpokTokenSale.deployed().then(async function(instance) {
+  //
+  //   });
+
+  // it('should set the correct private stage rate', function(done)
+
+  //
+  // it('should set default cap of ethers during token sale', function(done) {
+  //   SpokTokenSale.deployed().then(async function(instance) {
+  //     const cap = await instance.cap.call();
+  //     assert.equal(web3.fromWei(cap.toNumber(), "ether"), capValue, 'The default cap is wrong');
+  //     done();
+  //   });
+  // });
 
   // it('one ETH should buy correct number of during Private stage', function(done) {
   //   SpokTokenSale.deployed().then(async function(instance) {
