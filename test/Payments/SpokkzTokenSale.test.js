@@ -1,7 +1,7 @@
 import ether from '../../node_modules/zeppelin-solidity/test/helpers/ether';
 
-const SpokTokenSale = artifacts.require('SpokTokenSale');
-const SpokToken = artifacts.require('SpokToken');
+const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
+const SpokkzToken = artifacts.require('SpokkzToken');
 
 const BigNumber = web3.BigNumber;
 
@@ -10,7 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokTokenSale', function ([_, wallet, authorized, purchaser, unauthorized]) {
+contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unauthorized]) {
   const scaleDownValue = 100;
 
   const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
@@ -19,8 +19,8 @@ contract('SpokTokenSale', function ([_, wallet, authorized, purchaser, unauthori
   const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
   beforeEach(async function () {
-    this.token = await SpokToken.new();
-    this.crowdsale = await SpokTokenSale.new(rateDuringPrivateStage,rateDuringPreICOStage,rateDuringICOStage, wallet, this.token.address, cap);
+    this.token = await SpokkzToken.new();
+    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPreICOStage,rateDuringICOStage, wallet, this.token.address, cap);
     await this.token.transferOwnership(this.crowdsale.address);
     await this.crowdsale.addToWhitelist(authorized);
   });

@@ -1,5 +1,5 @@
-var SpokToken = artifacts.require("./SpokToken.sol");
-var SpokTokenSale = artifacts.require("./SpokTokenSale.sol")
+var SpokkzToken = artifacts.require("./SpokkzToken.sol");
+var SpokkzTokenSale = artifacts.require("./SpokkzTokenSale.sol")
 
 module.exports = function(deployer, network, accounts) {
 
@@ -19,12 +19,12 @@ module.exports = function(deployer, network, accounts) {
 
   const wallet = accounts[9];
 
-  deployer.deploy(SpokToken).then(function() {
+  deployer.deploy(SpokkzToken).then(function() {
     return deployer.deploy(
-      SpokTokenSale, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage, wallet, SpokToken.address, cap).then(function() {
-      return SpokToken.deployed().then(function(spokToken) {
-        return spokToken.transferOwnership(SpokTokenSale.address);
-      });
+      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage, wallet, SpokkzToken.address, cap).then(function() {
+      return SpokkzToken.deployed().then(function(spokkzToken) {
+        return spokkzToken.transferOwnership(SpokkzTokenSale.address);
+      })
     });
   })
 

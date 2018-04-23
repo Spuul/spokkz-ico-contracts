@@ -1,7 +1,7 @@
 import ether from '../../node_modules/zeppelin-solidity/test/helpers/ether';
 
-const SpokTokenSale = artifacts.require('SpokTokenSale');
-const SpokToken = artifacts.require('SpokToken');
+const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
+const SpokkzToken = artifacts.require('SpokkzToken');
 
 const BigNumber = web3.BigNumber;
 
@@ -26,10 +26,10 @@ const TOKENS_FOR_ADVISORS = ether(60000000);
 const TOKENS_FOR_LEGAL_AND_MARKETING = ether(60000000);
 const TOKENS_FOR_BOUNTY = ether(10000000);
 
-contract('SpokTokenSale', function(accounts) {
+contract('SpokkzTokenSale', function(accounts) {
   describe('correct settings', function() {
     it('should set the correct cap', function(done) {
-      SpokTokenSale.deployed().then(async function(instance) {
+      SpokkzTokenSale.deployed().then(async function(instance) {
         const cap = await instance.cap.call();
         cap.should.be.bignumber.equal(CAP);
         done();
@@ -37,7 +37,7 @@ contract('SpokTokenSale', function(accounts) {
     });
 
     it('should set default token sale stage to Private', function(done) {
-      SpokTokenSale.deployed().then(async function(instance) {
+      SpokkzTokenSale.deployed().then(async function(instance) {
         const stage = await instance.stage.call();
         stage.should.be.bignumber.equal(PRIVATE_STAGE);
         done();
@@ -45,7 +45,7 @@ contract('SpokTokenSale', function(accounts) {
     });
 
     it('should set the token supply and distribution correctly', function(done) {
-      SpokTokenSale.deployed().then(async function(instance) {
+      SpokkzTokenSale.deployed().then(async function(instance) {
         const maxSupplyOfTokens = await instance.maxSupplyOfTokens.call();
 
         const totalTokensForSale = await instance.totalTokensForSale.call();
@@ -78,7 +78,7 @@ contract('SpokTokenSale', function(accounts) {
 
 
   // it('should set the rate per stage correctly', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //
   //   });
 
@@ -86,7 +86,7 @@ contract('SpokTokenSale', function(accounts) {
 
   //
   // it('should set default cap of ethers during token sale', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     const cap = await instance.cap.call();
   //     assert.equal(web3.fromWei(cap.toNumber(), "ether"), capValue, 'The default cap is wrong');
   //     done();
@@ -94,13 +94,13 @@ contract('SpokTokenSale', function(accounts) {
   // });
 
   // it('one ETH should buy correct number of during Private stage', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     const data = await instance.sendTransaction({
   //       from: accounts[7],
   //       value: web3.toWei(1, "ether")
   //     });
   //     const tokenAddress = await instance.token.call();
-  //     const spokToken = SpokToken.at(tokenAddress);
+  //     const spokToken = Spokkz.at(tokenAddress);
   //
   //     const tokenAmount = await spokToken.balanceOf(accounts[7]);
   //     const totalSupply = await spokToken.totalSupply();
@@ -112,7 +112,7 @@ contract('SpokTokenSale', function(accounts) {
   // });
   //
   // it('should transfer the ETH to wallet immediately in Pre ICO', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     let balanceOfBeneficiary = await web3.eth.getBalance(accounts[9]);
   //     balanceOfBeneficiary = Number(balanceOfBeneficiary);
   //
@@ -130,7 +130,7 @@ contract('SpokTokenSale', function(accounts) {
   // });
   //
   // it('should set variable `totalWeiRaisedDuringPreICO` correctly', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     var amount = await instance.totalWeiRaisedDuringPreICOStage.call();
   //     assert.equal(amount.toNumber(), web3.toWei(3, "ether"), 'Total ETH raised in PreICO was not calculated correctly');
   //     done();
@@ -138,7 +138,7 @@ contract('SpokTokenSale', function(accounts) {
   // });
   //
   // it('should get dashboard data correctly', function(done) {
-  //   SpokTokenSale.deployed().then(async function(instance) {
+  //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     var [_stage, _weiRaised, _cap] = await instance.getDashboardData.call();
   //     var weiRaised = await instance.weiRaised.call();
   //
