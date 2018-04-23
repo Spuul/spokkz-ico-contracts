@@ -81,6 +81,15 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         await this.crowdsale.sendTransaction({ value: value, from: investorA }).should.be.rejected;
       });
 
+      it('should be successfull if sold tokens is equal to the private reserve', async function () {
+        const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
+        const totalTokensMintedSoFar = await this.token.totalSupply();
+
+        const remainingTokensForPrivateStage = totalTokensForSaleDuringPrivateStage.minus(totalTokensMintedSoFar);
+        const remainingTokenCostForPrivateStage = remainingTokensForPrivateStage.dividedBy(rateDuringPrivateStage);
+
+        await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
+      });
     });
   });
 });
