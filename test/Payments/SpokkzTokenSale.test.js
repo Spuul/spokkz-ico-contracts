@@ -5,18 +5,19 @@ const SpokkzToken = artifacts.require('SpokkzToken');
 
 const BigNumber = web3.BigNumber;
 
+const scaleDownValue = 100;
+
+const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
+const rateDuringPreICOStage = new BigNumber(7058).times(scaleDownValue);
+const rateDuringICOStage = new BigNumber(6000).times(scaleDownValue);
+const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
 contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unauthorized]) {
-  const scaleDownValue = 100;
-
-  const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
-  const rateDuringPreICOStage = new BigNumber(7058).times(scaleDownValue);
-  const rateDuringICOStage = new BigNumber(6000).times(scaleDownValue);
-  const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
   beforeEach(async function () {
     this.token = await SpokkzToken.new();
