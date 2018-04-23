@@ -2,8 +2,9 @@ pragma solidity ^0.4.18;
 
 import './SpokToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 
-contract SpokTokenSale is CappedCrowdsale {
+contract SpokTokenSale is CappedCrowdsale, MintedCrowdsale{
 
   enum TokenSaleStage {
     Private,
