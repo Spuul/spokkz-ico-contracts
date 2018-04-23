@@ -10,7 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokTokenSale', function ([_, investor, wallet, purchaser]) {
+contract('SpokTokenSale', function ([_, wallet, authorized, purchaser, unauthorized]) {
   const scaleDownValue = 100;
 
   const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
@@ -22,13 +22,35 @@ contract('SpokTokenSale', function ([_, investor, wallet, purchaser]) {
     this.token = await SpokToken.new();
     this.crowdsale = await SpokTokenSale.new(rateDuringPrivateStage,rateDuringPreICOStage,rateDuringICOStage, wallet, this.token.address, cap);
     await this.token.transferOwnership(this.crowdsale.address);
+    await this.crowdsale.addToWhitelist(authorized);
+  });
+
+  describe('reporting whitelisted', function () {
+    it('should correctly report whitelisted addresses', async function () {
+      let isAuthorized = await this.crowdsale.whitelist(authorized);
+      isAuthorized.should.equal(true);
+      let isntAuthorized = await this.crowdsale.whitelist(unauthorized);
+      isntAuthorized.should.equal(false);
+    });
   });
 
   describe('accepting payments', function () {
-    it('should accept payments', async function () {
-      let value = ether(1);
-      await this.crowdsale.send(value).should.be.fulfilled;
-      await this.crowdsale.buyTokens(investor, { value: value, from: purchaser }).should.be.fulfilled;
+    let value = ether(1);
+
+    it('should accept payments to whitelisted (from whichever buyers)', async function () {
+      await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.fulfilled;
+      await this.crowdsale.buyTokens(authorized, { value: value, from: unauthorized }).should.be.fulfilled;
+    });
+
+    it('should reject payments to not whitelisted (from whichever buyers)', async function () {
+      await this.crowdsale.send(value).should.be.rejected;
+      await this.crowdsale.buyTokens(unauthorized, { value: value, from: authorized }).should.be.rejected;
+      await this.crowdsale.buyTokens(unauthorized, { value: value, from: unauthorized }).should.be.rejected;
+    });
+
+    it('should reject payments to addresses removed from whitelist', async function () {
+      await this.crowdsale.removeFromWhitelist(authorized);
+      await this.crowdsale.buyTokens(authorized, { value: value, from: authorized }).should.be.rejected;
     });
   });
 
@@ -37,24 +59,24 @@ contract('SpokTokenSale', function ([_, investor, wallet, purchaser]) {
     let expectedTokenAmount = rateDuringPrivateStage.times(value);
 
     it('should log purchase', async function () {
-      const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investor });
+      const { logs } = await this.crowdsale.sendTransaction({ value: value, from: authorized });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
-      event.args.purchaser.should.equal(investor);
-      event.args.beneficiary.should.equal(investor);
+      event.args.purchaser.should.equal(authorized);
+      event.args.beneficiary.should.equal(authorized);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should assign tokens to sender', async function () {
-      await this.crowdsale.sendTransaction({ value: value, from: investor });
-      let balance = await this.token.balanceOf(investor);
+      await this.crowdsale.sendTransaction({ value: value, from: authorized });
+      let balance = await this.token.balanceOf(authorized);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet);
-      await this.crowdsale.sendTransaction({ value, from: investor });
+      await this.crowdsale.sendTransaction({ value, from: authorized });
       const post = web3.eth.getBalance(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
@@ -65,24 +87,24 @@ contract('SpokTokenSale', function ([_, investor, wallet, purchaser]) {
     let expectedTokenAmount = rateDuringPrivateStage.times(value);
 
     it('should log purchase', async function () {
-      const { logs } = await this.crowdsale.buyTokens(investor, { value: value, from: purchaser });
+      const { logs } = await this.crowdsale.buyTokens(authorized, { value: value, from: purchaser });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
       event.args.purchaser.should.equal(purchaser);
-      event.args.beneficiary.should.equal(investor);
+      event.args.beneficiary.should.equal(authorized);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should assign tokens to beneficiary', async function () {
-      await this.crowdsale.buyTokens(investor, { value, from: purchaser });
-      const balance = await this.token.balanceOf(investor);
+      await this.crowdsale.buyTokens(authorized, { value, from: purchaser });
+      const balance = await this.token.balanceOf(authorized);
       balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet);
-      await this.crowdsale.buyTokens(investor, { value, from: purchaser });
+      await this.crowdsale.buyTokens(authorized, { value, from: purchaser });
       const post = web3.eth.getBalance(wallet);
       post.minus(pre).should.be.bignumber.equal(value);
     });
