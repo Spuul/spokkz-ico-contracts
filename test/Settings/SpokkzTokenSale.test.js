@@ -27,7 +27,7 @@ const TOKENS_FOR_LEGAL_AND_MARKETING = ether(60000000);
 const TOKENS_FOR_BOUNTY = ether(10000000);
 
 contract('SpokkzTokenSale', function(accounts) {
-  describe('correct settings', function() {
+  describe('settings', function() {
     it('should set the correct cap', function(done) {
       SpokkzTokenSale.deployed().then(async function(instance) {
         const cap = await instance.cap.call();

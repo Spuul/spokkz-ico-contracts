@@ -6,7 +6,7 @@ import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 
-contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale{
+contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale {
 
   enum TokenSaleStage {
     Private,
@@ -65,7 +65,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
     }
   // =============
-
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
 
@@ -75,4 +74,17 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       require(totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] >= totalTokensThatWillBeMintedAfterPurchase);
     }
   }
+
+  function startNextSaleStage() public onlyOwner {
+   require(stage != TokenSaleStage.ICO);
+
+   if (stage == TokenSaleStage.Private) {
+     stage = TokenSaleStage.PreICO;
+   } else if (stage == TokenSaleStage.PreICO) {
+     stage = TokenSaleStage.ICO;
+   }
+
+   rate = ratePerStage[uint256(stage)];
+ }
+
 }
