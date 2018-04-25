@@ -65,7 +65,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
         const pre = web3.eth.getBalance(wallet);
         await this.crowdsale.addToWhitelist(investorB);
 
-        await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.fulfilled;;
+        await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.fulfilled;
         const post = web3.eth.getBalance(wallet);
 
         post.minus(pre).should.be.bignumber.equal(value);
@@ -73,12 +73,18 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
 
 
       it('should tally post wallet balance', async function () {
-
         const totalTokensForSale = await this.crowdsale.totalTokensForSale.call();
-        const remainingTokenCost = totalTokensForSale.dividedBy(rateDuringCrowdsaleStage);
 
         const postWalletBalance = web3.eth.getBalance(wallet);
         postWalletBalance.should.be.bignumber.equal(preWalletBalance.plus(ether(2)));
+      });
+
+      it('should be rejected if sold tokens beyond token sale reserve',async function () {
+
+        let value = ether(50);
+        await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.rejected;
+
+
       });
     });
   });
