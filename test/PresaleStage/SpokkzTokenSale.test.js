@@ -12,6 +12,8 @@ const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
+const capTokenSupply = new BigNumber(1000000000000000000000000000);
+
 const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
@@ -21,13 +23,13 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, investorE]) {
   describe('Presale stage', function () {
     describe('Start presale stage after private', function () {
 
 
       before(async function () {
-        this.token = await SpokkzToken.new();
+        this.token = await SpokkzToken.new(capTokenSupply);
         this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
         await this.token.transferOwnership(this.crowdsale.address);
       });
@@ -55,7 +57,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
       const preWalletBalance = web3.eth.getBalance(wallet);
 
       before(async function () {
-        this.token = await SpokkzToken.new();
+        this.token = await SpokkzToken.new(capTokenSupply);
         this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
         await this.token.transferOwnership(this.crowdsale.address);
         await this.crowdsale.addToWhitelist(investorA);
@@ -64,6 +66,8 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
       it('should be able to buy tokens in private stage', async function () {
         const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
         const remainingTokenCostForPrivateStage = totalTokensForSaleDuringPrivateStage.dividedBy(rateDuringPrivateStage);
+
+        console.log(remainingTokenCostForPrivateStage.toNumber());
         await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
       });
 
@@ -103,7 +107,35 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
       });
     });
 
-    describe('Over private token supply reserve', function () {
+    describe('Over presale token supply reserve', function () {
+      before(async function () {
+        this.token = await SpokkzToken.new(capTokenSupply);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
+        await this.token.transferOwnership(this.crowdsale.address);
+        await this.crowdsale.addToWhitelist(investorA);
+
+        const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
+        const remainingTokenCostForPrivateStage = totalTokensForSaleDuringPrivateStage.dividedBy(rateDuringPrivateStage);
+        await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
+
+        this.crowdsale.startNextSaleStage().should.be.fulfilled;
+      });
+
+      it('should be able to buy more than the presale token reserve', async function () {
+        let value = ether(75);
+
+        await this.crowdsale.addToWhitelist(investorB);
+        await this.crowdsale.addToWhitelist(investorC);
+        await this.crowdsale.addToWhitelist(investorD);
+        await this.crowdsale.addToWhitelist(investorE);
+
+        await this.crowdsale.sendTransaction({ value: value, from: investorB }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ value: value, from: investorC }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ value: value, from: investorD }).should.be.fulfilled;
+        await this.crowdsale.sendTransaction({ value: value, from: investorE }).should.be.fulfilled;
+
+      });
+
     });
   });
 });

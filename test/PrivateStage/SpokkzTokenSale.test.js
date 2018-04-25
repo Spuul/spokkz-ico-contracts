@@ -12,6 +12,9 @@ const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
+const capTokenSupply = new BigNumber(1000000000000000000000000000); // 1 Billion;
+
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -24,7 +27,7 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
       const preWalletBalance = web3.eth.getBalance(wallet);
 
       before(async function () {
-        this.token = await SpokkzToken.new();
+        this.token = await SpokkzToken.new(capTokenSupply);
         this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
         await this.token.transferOwnership(this.crowdsale.address);
       });
@@ -63,7 +66,7 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
     describe('Over private token supply reserve', function () {
 
       before(async function () {
-        this.token = await SpokkzToken.new();
+        this.token = await SpokkzToken.new(capTokenSupply);
         this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
         await this.token.transferOwnership(this.crowdsale.address);
 
