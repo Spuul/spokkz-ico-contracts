@@ -10,9 +10,9 @@ const scaleDownValue = 100;
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
-const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
+const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
 
-const capTokenSupply = new BigNumber(1000000000000000000000000000); // 1 Billion;
+const capTokenSupply = new BigNumber('1e27'); // 1 Billion
 
 
 const should = require('chai')
