@@ -68,9 +68,12 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
 
+    uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
+    uint256 totalTokensThatWillBeMintedAfterPurchase = tokensThatWillBeMintedAfterPurchase + token.totalSupply();
+
+    require(totalTokensForSale >= totalTokensThatWillBeMintedAfterPurchase);
+
     if (stage == TokenSaleStage.Private) {
-      uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
-      uint256 totalTokensThatWillBeMintedAfterPurchase = tokensThatWillBeMintedAfterPurchase + token.totalSupply();
       require(totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] >= totalTokensThatWillBeMintedAfterPurchase);
     }
   }

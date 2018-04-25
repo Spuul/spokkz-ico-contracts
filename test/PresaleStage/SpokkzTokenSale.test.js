@@ -12,18 +12,21 @@ const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
-const capTokenSupply = new BigNumber(1000000000000000000000000000);
+const capTokenSupply = new BigNumber('1e27');        // 1 billion tokens
+const TOTAL_TOKENS_FOR_SALE = new BigNumber('3e26'); // 300 million tokens 300 000 000
 
 const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
+
+
 
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, investorE]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, investorE, investorF, investorG ]) {
   describe('Presale stage', function () {
     describe('Start presale stage after private', function () {
 
@@ -67,7 +70,6 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
         const remainingTokenCostForPrivateStage = totalTokensForSaleDuringPrivateStage.dividedBy(rateDuringPrivateStage);
 
-        console.log(remainingTokenCostForPrivateStage.toNumber());
         await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
       });
 
@@ -133,9 +135,25 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         await this.crowdsale.sendTransaction({ value: value, from: investorC }).should.be.fulfilled;
         await this.crowdsale.sendTransaction({ value: value, from: investorD }).should.be.fulfilled;
         await this.crowdsale.sendTransaction({ value: value, from: investorE }).should.be.fulfilled;
-
       });
 
+      it('should be able to buy up to the entire token sale reserved', async function () {
+        const totalSupply = await this.token.totalSupply();
+        const remainingTokensForSale = TOTAL_TOKENS_FOR_SALE.minus(totalSupply);
+        const remainingTokenCostForEntireTokenReserved = remainingTokensForSale.dividedBy(rateDuringPresaleStage);
+
+        const remainingTokenCostForEntireTokenReservedInEther = web3.fromWei(remainingTokenCostForEntireTokenReserved, 'ether').toNumber();
+
+        await this.crowdsale.addToWhitelist(investorF);
+        await this.crowdsale.sendTransaction({ value: ether(remainingTokenCostForEntireTokenReservedInEther), from: investorF }).should.be.fulfilled;
+      });
+
+      it('should not be able to buy more than the entire token sale reserved', async function() {
+        let value = ether(1);
+        await this.crowdsale.addToWhitelist(investorG);
+        await this.crowdsale.sendTransaction({ value: value, from: investorG }).should.be.rejected;
+      })
+      
     });
   });
 });
