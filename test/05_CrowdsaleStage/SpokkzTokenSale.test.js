@@ -5,12 +5,12 @@ const SpokkzToken = artifacts.require('SpokkzToken');
 
 const BigNumber = web3.BigNumber;
 
-const scaleDownValue = 100;
+const scaleDownValue = 1000;
 
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
-const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
+const cap = ether(50000).dividedBy(scaleDownValue); // 50 ethers
 
 const capTokenSupply = new BigNumber('1e27');        // 1 billion tokens
 const TOTAL_TOKENS_FOR_SALE = new BigNumber('3e26'); // 300 million tokens 300 000 000
@@ -26,9 +26,11 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
   describe('Public sale stage', function () {
     describe('Start crowdsale stage after presale', function () {
+
+      const preWalletBalance = web3.eth.getBalance(wallet);
 
       before(async function () {
         this.token = await SpokkzToken.new(capTokenSupply);
@@ -44,6 +46,39 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA]) {
         await this.crowdsale.startNextSaleStage().should.be.fulfilled;
         const postStage = await this.crowdsale.stage.call();
         postStage.should.be.bignumber.equal(CROWDSALE_STAGE);
+      });
+
+      it('should be successfull payment transaction', async function() {
+        let value = ether(1);
+        let expectedTokenAmount = rateDuringCrowdsaleStage.times(value);
+
+        await this.crowdsale.addToWhitelist(investorA);
+
+        await this.crowdsale.sendTransaction({ value: value, from: investorA }).should.be.fulfilled;
+        let balance = await this.token.balanceOf(investorA);
+        balance.should.be.bignumber.equal(expectedTokenAmount);
+      });
+
+      it('should forward funds to wallet', async function() {
+        let value = ether(1);
+
+        const pre = web3.eth.getBalance(wallet);
+        await this.crowdsale.addToWhitelist(investorB);
+
+        await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.fulfilled;;
+        const post = web3.eth.getBalance(wallet);
+
+        post.minus(pre).should.be.bignumber.equal(value);
+      });
+
+
+      it('should tally post wallet balance', async function () {
+
+        const totalTokensForSale = await this.crowdsale.totalTokensForSale.call();
+        const remainingTokenCost = totalTokensForSale.dividedBy(rateDuringCrowdsaleStage);
+
+        const postWalletBalance = web3.eth.getBalance(wallet);
+        postWalletBalance.should.be.bignumber.equal(preWalletBalance.plus(ether(2)));
       });
     });
   });
