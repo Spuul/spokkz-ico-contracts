@@ -17,14 +17,14 @@ const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
 
-const MAX_SUPPLY_OF_TOKENS = ether(1000000000);
-const TOTAL_TOKENS_FOR_SALE = ether(300000000);
+const MAX_SUPPLY_OF_TOKENS = new BigNumber('1e27');
+const TOTAL_TOKENS_FOR_SALE = new BigNumber('3e26');
 
-const TOKENS_FOR_ECOSYSTEM = ether(430000000);
-const TOKENS_FOR_TEAM = ether(140000000);
-const TOKENS_FOR_ADVISORS = ether(60000000);
-const TOKENS_FOR_LEGAL_AND_MARKETING = ether(60000000);
-const TOKENS_FOR_BOUNTY = ether(10000000);
+const TOKENS_FOR_ECOSYSTEM = new BigNumber('43e25');
+const TOKENS_FOR_TEAM = new BigNumber('14e25');
+const TOKENS_FOR_ADVISORS = new BigNumber('6e25');
+const TOKENS_FOR_LEGAL_AND_MARKETING = new BigNumber('6e25');
+const TOKENS_FOR_BOUNTY = new BigNumber('1e25');
 
 contract('SpokkzTokenSale', function(accounts) {
   describe('settings', function() {
