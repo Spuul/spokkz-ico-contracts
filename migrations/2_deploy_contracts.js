@@ -11,8 +11,8 @@ module.exports = function(deployer, network, accounts) {
   // const closingTime = Math.round((new Date().getTime() + (86400000 * tokenSaleDays)) / 1000);
   //
   const rateDuringPrivateStage = 12000;
-  const rateDuringPreICOStage = 7058;
-  const rateDuringICOStage = 6000;
+  const rateDuringPresaleStage = 7058;
+  const rateDuringCrowdsaleStage = 6000;
   //
   // const goal = 11111000000000000000000;   // The goal is 11,111 Ethers
   const cap = 50000000000000000000000;    // The cap is 50,000 Ethers
@@ -21,7 +21,7 @@ module.exports = function(deployer, network, accounts) {
 
   deployer.deploy(SpokkzToken).then(function() {
     return deployer.deploy(
-      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage, wallet, SpokkzToken.address, cap).then(function() {
+      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPresaleStage, rateDuringCrowdsaleStage, wallet, SpokkzToken.address, cap).then(function() {
       return SpokkzToken.deployed().then(function(spokkzToken) {
         return spokkzToken.transferOwnership(SpokkzTokenSale.address);
       })
@@ -31,7 +31,7 @@ module.exports = function(deployer, network, accounts) {
 
   // deployer.deploy(SpokToken).then(function() {
   //   return deployer.deploy(
-  //     SpokTokenSale, rateDuringPrivateStage, rateDuringPreICOStage, rateDuringICOStage, wallet, SpokToken.address, cap, goal, openingTime, closingTime).then(function() {
+  //     SpokTokenSale, rateDuringPrivateStage, rateDuringPresaleStage, rateDuringCrowdsaleStage, wallet, SpokToken.address, cap, goal, openingTime, closingTime).then(function() {
   //     return SpokToken.deployed().then(function(spokToken) {
   //       return spokToken.transferOwnership(SpokTokenSale.address);
   //     });

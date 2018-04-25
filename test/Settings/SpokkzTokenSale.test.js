@@ -13,8 +13,8 @@ const should = require('chai')
 const CAP = ether(50000);
 
 const PRIVATE_STAGE = new BigNumber(0);
-const PreICO = new BigNumber(1);
-const ICO = new BigNumber(2);
+const PRESALE_STAGE = new BigNumber(1);
+const CROWDSALE_STAGE = new BigNumber(2);
 
 
 const MAX_SUPPLY_OF_TOKENS = ether(1000000000);
@@ -105,13 +105,13 @@ contract('SpokkzTokenSale', function(accounts) {
   //     const tokenAmount = await spokToken.balanceOf(accounts[7]);
   //     const totalSupply = await spokToken.totalSupply();
   //
-  //     assert.equal(tokenAmount.toNumber(), , 'The sender didn\'t receive the tokens as per PreICO rate');
+  //     assert.equal(tokenAmount.toNumber(), , 'The sender didn\'t receive the tokens as per Presale rate');
   //     assert.equal(totalSupply.toNumber(), , 'The current totalSupply is wrong');
   //     done();
   //   });
   // });
   //
-  // it('should transfer the ETH to wallet immediately in Pre ICO', function(done) {
+  // it('should transfer the ETH to wallet immediately in Pre Crowdsale', function(done) {
   //   SpokkzTokenSale.deployed().then(async function(instance) {
   //     let balanceOfBeneficiary = await web3.eth.getBalance(accounts[9]);
   //     balanceOfBeneficiary = Number(balanceOfBeneficiary);
@@ -129,10 +129,10 @@ contract('SpokkzTokenSale', function(accounts) {
   //   });
   // });
   //
-  // it('should set variable `totalWeiRaisedDuringPreICO` correctly', function(done) {
+  // it('should set variable `totalWeiRaisedDuringPresale` correctly', function(done) {
   //   SpokkzTokenSale.deployed().then(async function(instance) {
-  //     var amount = await instance.totalWeiRaisedDuringPreICOStage.call();
-  //     assert.equal(amount.toNumber(), web3.toWei(3, "ether"), 'Total ETH raised in PreICO was not calculated correctly');
+  //     var amount = await instance.totalWeiRaisedDuringPresaleStage.call();
+  //     assert.equal(amount.toNumber(), web3.toWei(3, "ether"), 'Total ETH raised in Presale was not calculated correctly');
   //     done();
   //   });
   // });
@@ -142,8 +142,8 @@ contract('SpokkzTokenSale', function(accounts) {
   //     var [_stage, _weiRaised, _cap] = await instance.getDashboardData.call();
   //     var weiRaised = await instance.weiRaised.call();
   //
-  //     assert.equal(_stage.toNumber(), 1, 'The stage is not PreICO');
-  //     assert.equal(_weiRaised.toNumber(), weiRaised, 'Total ETH raised in PreICO was not calculated correctly');
+  //     assert.equal(_stage.toNumber(), 1, 'The stage is not Presale');
+  //     assert.equal(_weiRaised.toNumber(), weiRaised, 'Total ETH raised in Presale was not calculated correctly');
   //     assert.equal(web3.fromWei(_cap.toNumber(), "ether"), capValue, 'The default cap value is wrong');
   //     done();
   //   });

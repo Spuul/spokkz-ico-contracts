@@ -8,8 +8,8 @@ const BigNumber = web3.BigNumber;
 const scaleDownValue = 100;
 
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
-const rateDuringPreICOStage = new BigNumber(7058).times(scaleDownValue);
-const rateDuringICOStage = new BigNumber(6000).times(scaleDownValue);
+const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
+const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = new BigNumber(50000000000000000000000).dividedBy(scaleDownValue); // 500 ethers
 
 const should = require('chai')
@@ -21,7 +21,7 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
 
   beforeEach(async function () {
     this.token = await SpokkzToken.new();
-    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPreICOStage,rateDuringICOStage, wallet, this.token.address, cap);
+    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
     await this.token.transferOwnership(this.crowdsale.address);
     await this.crowdsale.addToWhitelist(authorized);
   });

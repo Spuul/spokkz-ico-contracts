@@ -10,8 +10,8 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   enum TokenSaleStage {
     Private,
-    PreICO,
-    ICO
+    Presale,
+    Crowdsale
   }
 
   uint constant numberOFStages = 3;
@@ -34,8 +34,8 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   uint256 public tokensForBounty              = 10000000 * (10 ** uint256(18));     // tokens for Bounty is 10 million, 1% of token supply
 
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale, 4.5% of token supply
-  uint256 public totalTokensForSaleDuringPreICOStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on PreICO stage is 210 million, 70% of total tokens for sale, 21% of token supply
-  uint256 public totalTokensForSaleDuringICOStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on ICO stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
+  uint256 public totalTokensForSaleDuringPresaleStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on Presale stage is 210 million, 70% of total tokens for sale, 21% of token supply
+  uint256 public totalTokensForSaleDuringCrowdsaleStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on Crowdsale stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
 
   // Events
   event EthTransferred(string text);
@@ -43,25 +43,25 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   // Constructor
   // ============
-  function SpokkzTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPreICOStage, uint256 _rateDuringICOStage, address _wallet, ERC20 _token, uint256 _cap) public
+  function SpokkzTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPresaleStage, uint256 _rateDuringCrowdsaleStage, address _wallet, ERC20 _token, uint256 _cap) public
     CappedCrowdsale(_cap)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
     {
       require(_rateDuringPrivateStage > 0);
-      require(_rateDuringPreICOStage > 0);
-      require(_rateDuringICOStage > 0);
+      require(_rateDuringPresaleStage > 0);
+      require(_rateDuringCrowdsaleStage > 0);
 
       ratePerStage[uint256(TokenSaleStage.Private)] = _rateDuringPrivateStage;
-      ratePerStage[uint256(TokenSaleStage.PreICO)] = _rateDuringPreICOStage;
-      ratePerStage[uint256(TokenSaleStage.ICO)] = _rateDuringICOStage;
+      ratePerStage[uint256(TokenSaleStage.Presale)] = _rateDuringPresaleStage;
+      ratePerStage[uint256(TokenSaleStage.Crowdsale)] = _rateDuringCrowdsaleStage;
 
       totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] = totalTokensForSaleDuringPrivateStage;
-      totalTokensForSalePerStage[uint256(TokenSaleStage.PreICO)]  = totalTokensForSaleDuringPreICOStage;
-      totalTokensForSalePerStage[uint256(TokenSaleStage.ICO)]     = totalTokensForSaleDuringICOStage;
+      totalTokensForSalePerStage[uint256(TokenSaleStage.Presale)]  = totalTokensForSaleDuringPresaleStage;
+      totalTokensForSalePerStage[uint256(TokenSaleStage.Crowdsale)]     = totalTokensForSaleDuringCrowdsaleStage;
 
       totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)] = 0;
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.PreICO)] = 0;
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.ICO)] = 0;
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.Presale)] = 0;
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.Crowdsale)] = 0;
 
     }
   // =============
@@ -76,12 +76,12 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   }
 
   function startNextSaleStage() public onlyOwner {
-    require(stage != TokenSaleStage.ICO);
+    require(stage != TokenSaleStage.Crowdsale);
 
     if (stage == TokenSaleStage.Private) {
-      stage = TokenSaleStage.PreICO;
-    } else if (stage == TokenSaleStage.PreICO) {
-      stage = TokenSaleStage.ICO;
+      stage = TokenSaleStage.Presale;
+    } else if (stage == TokenSaleStage.Presale) {
+      stage = TokenSaleStage.Crowdsale;
     }
 
     rate = ratePerStage[uint256(stage)];
