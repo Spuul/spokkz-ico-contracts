@@ -29,11 +29,11 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         await this.token.transferOwnership(this.crowdsale.address);
       });
 
-      it('should reject if not whitelisted ', async function () {
+      it('should reject transaction if not whitelisted ', async function () {
         await this.crowdsale.sendTransaction({ value: ether(1), from: investorA }).should.be.rejected;
       });
 
-      it('should be successful if whitelisted', async function () {
+      it('should be successful transaction if whitelisted', async function () {
         let value = ether(1);
         let expectedTokenAmount = rateDuringPrivateStage.times(value);
 
