@@ -76,15 +76,15 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   }
 
   function startNextSaleStage() public onlyOwner {
-   require(stage != TokenSaleStage.ICO);
+    require(stage != TokenSaleStage.ICO);
 
-   if (stage == TokenSaleStage.Private) {
-     stage = TokenSaleStage.PreICO;
-   } else if (stage == TokenSaleStage.PreICO) {
-     stage = TokenSaleStage.ICO;
-   }
+    if (stage == TokenSaleStage.Private) {
+      stage = TokenSaleStage.PreICO;
+    } else if (stage == TokenSaleStage.PreICO) {
+      stage = TokenSaleStage.ICO;
+    }
 
-   rate = ratePerStage[uint256(stage)];
- }
+    rate = ratePerStage[uint256(stage)];
+  }
 
 }
