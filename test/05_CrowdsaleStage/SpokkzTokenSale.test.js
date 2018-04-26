@@ -19,14 +19,12 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
-
-
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD]) {
   describe('Public sale stage', function () {
     describe('Start crowdsale stage after presale', function () {
 
@@ -71,7 +69,6 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
         post.minus(pre).should.be.bignumber.equal(value);
       });
 
-
       it('should tally post wallet balance', async function () {
         const totalTokensForSale = await this.crowdsale.totalTokensForSale.call();
 
@@ -79,9 +76,22 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
         postWalletBalance.should.be.bignumber.equal(preWalletBalance.plus(ether(2)));
       });
 
+      it('should be successful if sold tokens is equal to token sale reserved', async function () {
+        const totalSupply = await this.token.totalSupply();
+
+        const remainingTokensForSale = TOTAL_TOKENS_FOR_SALE.minus(totalSupply);
+        const remainingTokenCostForEntireTokenReserved = remainingTokensForSale.dividedBy(rateDuringCrowdsaleStage);
+
+        const remainingTokenCostForEntireTokenReservedInEther = web3.fromWei(remainingTokenCostForEntireTokenReserved, 'ether').toNumber();
+
+        await this.crowdsale.addToWhitelist(investorC);
+        await this.crowdsale.sendTransaction({ value: ether(remainingTokenCostForEntireTokenReservedInEther), from: investorC }).should.be.fulfilled;
+      });
+
       it('should be rejected if sold tokens beyond token sale reserve',async function () {
-        let value = ether(50);
-        await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.rejected;
+        let value = ether(1);
+        await this.crowdsale.addToWhitelist(investorD);
+        await this.crowdsale.sendTransaction({ value, from: investorD }).should.be.rejected;
       });
 
 
