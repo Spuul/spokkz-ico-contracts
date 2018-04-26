@@ -3,6 +3,11 @@ var SpokkzTokenSale = artifacts.require("./SpokkzTokenSale.sol")
 
 module.exports = function(deployer, network, accounts) {
 
+  const additionalTime = 30000; // 30 seconds
+
+  const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000); // Now + 30 seconds
+  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);          // Today + 30 days
+
   const rateDuringPrivateStage = 12000;
   const rateDuringPresaleStage = 7058;
   const rateDuringCrowdsaleStage = 6000;
@@ -14,7 +19,7 @@ module.exports = function(deployer, network, accounts) {
 
   deployer.deploy(SpokkzToken, capTokenSupply).then(function() {
     return deployer.deploy(
-      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPresaleStage, rateDuringCrowdsaleStage, wallet, SpokkzToken.address, cap).then(function() {
+      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPresaleStage, rateDuringCrowdsaleStage, wallet, SpokkzToken.address, cap, openingTime, closingTime).then(function() {
       return SpokkzToken.deployed().then(function(spokkzToken) {
         return spokkzToken.transferOwnership(SpokkzTokenSale.address);
       })
