@@ -17,9 +17,10 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   uint constant numberOFStages = 3;
 
+
   mapping (uint256 => uint256) public ratePerStage;
   mapping (uint256 => uint256) public totalTokensForSalePerStage;
-  mapping (uint256 => uint256) public totalWeiRaisedPerStage;
+  /* mapping (uint256 => uint256) public totalWeiRaisedPerStage; */
 
   TokenSaleStage public stage = TokenSaleStage.Private;
 
@@ -35,8 +36,13 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   uint256 public tokensForBounty              = 10000000 * (10 ** uint256(18));     // tokens for Bounty is 10 million, 1% of token supply
 
   uint256 public totalTokensForSaleDuringPrivateStage   = 45000000 * (10 ** uint256(18));   // tokens for sale on Private stage is 45 million, 15% of total tokens for sale, 4.5% of token supply
-  uint256 public totalTokensForSaleDuringPresaleStage    = 210000000 * (10 ** uint256(18));  // tokens for sale on Presale stage is 210 million, 70% of total tokens for sale, 21% of token supply
-  uint256 public totalTokensForSaleDuringCrowdsaleStage       = 45000000 * (10 ** uint256(18));   // tokens for sale on Crowdsale stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
+  uint256 public totalTokensForSaleDuringPresaleStage   = 210000000 * (10 ** uint256(18));  // tokens for sale on Presale stage is 210 million, 70% of total tokens for sale, 21% of token supply
+  uint256 public totalTokensForSaleDuringCrowdsaleStage = 45000000 * (10 ** uint256(18));   // tokens for sale on Crowdsale stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
+
+  address public ecosystemFund;
+  address public unsoldTokensForDistribution;
+  address public otherFunds;
+
 
   // Events
   event EthTransferred(string text);
@@ -44,7 +50,18 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   // Constructor
   // ============
-  function SpokkzTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPresaleStage, uint256 _rateDuringCrowdsaleStage, address _wallet, ERC20 _token, uint256 _cap, uint256 _openingTime, uint256 _closingTime) public
+  function SpokkzTokenSale(
+      uint256 _rateDuringPrivateStage,
+      uint256 _rateDuringPresaleStage,
+      uint256 _rateDuringCrowdsaleStage,
+      address _wallet,
+      ERC20 _token,
+      uint256 _cap, uint256
+      _openingTime, uint256
+      _closingTime,
+      address _ecosystemFund,
+      address _unsoldTokensForDistribution,
+      address _otherFunds) public
     CappedCrowdsale(_cap)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime)
@@ -52,6 +69,9 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       require(_rateDuringPrivateStage > 0);
       require(_rateDuringPresaleStage > 0);
       require(_rateDuringCrowdsaleStage > 0);
+      require(_ecosystemFund != 0);
+      require(_unsoldTokensForDistribution != 0);
+      require(_otherFunds != 0);
 
       ratePerStage[uint256(TokenSaleStage.Private)] = _rateDuringPrivateStage;
       ratePerStage[uint256(TokenSaleStage.Presale)] = _rateDuringPresaleStage;
@@ -59,11 +79,15 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
       totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] = totalTokensForSaleDuringPrivateStage;
       totalTokensForSalePerStage[uint256(TokenSaleStage.Presale)]  = totalTokensForSaleDuringPresaleStage;
-      totalTokensForSalePerStage[uint256(TokenSaleStage.Crowdsale)]     = totalTokensForSaleDuringCrowdsaleStage;
+      totalTokensForSalePerStage[uint256(TokenSaleStage.Crowdsale)] = totalTokensForSaleDuringCrowdsaleStage;
 
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)] = 0;
+      ecosystemFund = _ecosystemFund;
+      unsoldTokensForDistribution = _unsoldTokensForDistribution;
+      otherFunds = _otherFunds;
+
+      /* totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)] = 0;
       totalWeiRaisedPerStage[uint256(TokenSaleStage.Presale)] = 0;
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.Crowdsale)] = 0;
+      totalWeiRaisedPerStage[uint256(TokenSaleStage.Crowdsale)] = 0; */
 
     }
   // =============
@@ -92,4 +116,19 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     rate = ratePerStage[uint256(stage)];
   }
 
+  function finalization() internal {
+    super.finalization();
+    
+    uint256 alreadyMinted = token.totalSupply();
+
+    _deliverTokens(ecosystemFund, tokensForEcosystem);
+
+    uint256 unsoldTokens = totalTokensForSale - alreadyMinted;
+    if(unsoldTokens > 0) {
+      _deliverTokens(unsoldTokensForDistribution, unsoldTokens);
+    }
+
+    uint256 remainingTokensToBeMinted = tokensForTeam + tokensForAdvisors + tokensForLegalAndMarketing + tokensForBounty;
+    _deliverTokens(otherFunds, remainingTokensToBeMinted);
+  }
 }
