@@ -28,7 +28,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty]) {
+contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFund, unsoldTokensForDistribution, otherFunds]) {
   describe('Public sale stage', function () {
     describe('Start crowdsale stage after presale', function () {
 
@@ -44,7 +44,18 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty]) {
 
         this.token = await SpokkzToken.new(capTokenSupply);
         this.crowdsale = await SpokkzTokenSale.new(
-          rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, { from: owner });
+          rateDuringPrivateStage,
+          rateDuringPresaleStage,
+          rateDuringCrowdsaleStage,
+          wallet,
+          this.token.address,
+          cap,
+          this.openingTime,
+          this.closingTime,
+          ecosystemFund,
+          unsoldTokensForDistribution,
+          otherFunds,
+           { from: owner });
         await this.token.transferOwnership(this.crowdsale.address);
       });
 
@@ -73,6 +84,15 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty]) {
         const { logs } = await this.crowdsale.finalize({ from: owner });
         const event = logs.find(e => e.event === 'Finalized');
         should.exist(event);
+      });
+
+      it('should mint all tokens after finalizing', async function() {
+        await increaseTimeTo(this.afterClosingTime);
+        await this.crowdsale.finalize({ from: owner }).should.be.fulfilled;
+        
+        const totalSupply = await this.token.totalSupply();
+
+        totalSupply.should.be.bignumber.equal(capTokenSupply);
       });
     });
   });
