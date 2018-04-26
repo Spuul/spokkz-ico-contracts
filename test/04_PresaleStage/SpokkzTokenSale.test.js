@@ -29,7 +29,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, investorE, investorF, investorG ]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, investorE, investorF, ecosystemFund, otherFunds ]) {
   describe('Presale stage', function () {
     describe('Start presale stage after private', function () {
 
@@ -42,7 +42,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
@@ -78,7 +78,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
@@ -138,11 +138,11 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
-        
+
         await this.crowdsale.addToWhitelist(investorA);
 
         const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
@@ -179,8 +179,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
 
       it('should not be able to buy more than the entire token sale reserved', async function() {
         let value = ether(1);
-        await this.crowdsale.addToWhitelist(investorG);
-        await this.crowdsale.sendTransaction({ value: value, from: investorG }).should.be.rejected;
+        await this.crowdsale.sendTransaction({ value: value, from: investorF }).should.be.rejected;
       })
 
     });

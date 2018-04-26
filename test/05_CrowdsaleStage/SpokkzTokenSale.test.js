@@ -27,7 +27,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD]) {
+contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investorC, investorD, ecosystemFund, unsoldTokensForDistribution, otherFunds]) {
   describe('Public sale stage', function () {
     describe('Start crowdsale stage after presale', function () {
 
@@ -40,7 +40,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
