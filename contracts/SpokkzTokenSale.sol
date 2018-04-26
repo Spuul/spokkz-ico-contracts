@@ -5,8 +5,9 @@ import './SpokkzToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol';
 
-contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale {
+contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, FinalizableCrowdsale {
 
   enum TokenSaleStage {
     Private,
@@ -43,9 +44,10 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   // Constructor
   // ============
-  function SpokkzTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPresaleStage, uint256 _rateDuringCrowdsaleStage, address _wallet, ERC20 _token, uint256 _cap) public
+  function SpokkzTokenSale(uint256 _rateDuringPrivateStage, uint256 _rateDuringPresaleStage, uint256 _rateDuringCrowdsaleStage, address _wallet, ERC20 _token, uint256 _cap, uint256 _openingTime, uint256 _closingTime) public
     CappedCrowdsale(_cap)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
+    TimedCrowdsale(_openingTime, _closingTime)
     {
       require(_rateDuringPrivateStage > 0);
       require(_rateDuringPresaleStage > 0);
