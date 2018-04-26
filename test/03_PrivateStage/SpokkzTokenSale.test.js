@@ -1,4 +1,7 @@
+import { advanceBlock } from '../../node_modules/zeppelin-solidity/test/helpers/advanceToBlock';
+import { increaseTimeTo, duration } from '../../node_modules/zeppelin-solidity/test/helpers/increaseTime';
 import ether from '../../node_modules/zeppelin-solidity/test/helpers/ether';
+import latestTime from '../../node_modules/zeppelin-solidity/test/helpers/latestTime';
 
 const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
 const SpokkzToken = artifacts.require('SpokkzToken');
@@ -27,9 +30,17 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
       const preWalletBalance = web3.eth.getBalance(wallet);
 
       before(async function () {
+        await advanceBlock();
+
+        this.openingTime = latestTime() + duration.days(1);
+        this.closingTime = this.openingTime + duration.weeks(1);
+        this.afterClosingTime = this.closingTime + duration.seconds(1);
+
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
         await this.token.transferOwnership(this.crowdsale.address);
+
+        await increaseTimeTo(this.openingTime);
       });
 
       it('should reject transaction if not whitelisted ', async function () {
@@ -66,10 +77,17 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
     describe('Over private token supply reserve', function () {
 
       before(async function () {
+        await advanceBlock();
+
+        this.openingTime = latestTime() + duration.days(1);
+        this.closingTime = this.openingTime + duration.weeks(1);
+        this.afterClosingTime = this.closingTime + duration.seconds(1);
+
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime);
         await this.token.transferOwnership(this.crowdsale.address);
 
+        await increaseTimeTo(this.openingTime);
         await this.crowdsale.addToWhitelist(investorA);
       });
 
