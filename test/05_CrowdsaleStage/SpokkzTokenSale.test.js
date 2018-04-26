@@ -80,12 +80,11 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB]) {
       });
 
       it('should be rejected if sold tokens beyond token sale reserve',async function () {
-
         let value = ether(50);
         await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.rejected;
-
-
       });
+
+
     });
   });
 });
