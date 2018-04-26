@@ -12,14 +12,29 @@ module.exports = function(deployer, network, accounts) {
   const rateDuringPresaleStage = 7058;
   const rateDuringCrowdsaleStage = 6000;
 
-  const cap = 50000000000000000000000;                  // The cap is 50,000 Ethers
+  const cap = 50000000000000000000000;  // The cap is 50,000 Ethers
   const capTokenSupply = 1000000000000000000000000000;  // The cap token supply is 1 Billion SPOKKZ
 
-  const wallet = accounts[9];
+  const wallet = accounts[1]
+  const ecosystemFund = accounts[2]
+  const unsoldTokensForDistribution = accounts[3]
+  const otherFunds = accounts[4] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund
 
   deployer.deploy(SpokkzToken, capTokenSupply).then(function() {
     return deployer.deploy(
-      SpokkzTokenSale, rateDuringPrivateStage, rateDuringPresaleStage, rateDuringCrowdsaleStage, wallet, SpokkzToken.address, cap, openingTime, closingTime).then(function() {
+      SpokkzTokenSale,
+      rateDuringPrivateStage,
+      rateDuringPresaleStage,
+      rateDuringCrowdsaleStage,
+      wallet,
+      SpokkzToken.address,
+      cap,
+      openingTime,
+      closingTime,
+      ecosystemFund,
+      unsoldTokensForDistribution,
+      otherFunds
+    ).then(function() {
       return SpokkzToken.deployed().then(function(spokkzToken) {
         return spokkzToken.transferOwnership(SpokkzTokenSale.address);
       })
