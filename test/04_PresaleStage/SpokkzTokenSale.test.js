@@ -99,15 +99,21 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         postStage.should.be.bignumber.equal(PRESALE_STAGE);
       });
 
-      it('should be successfull payment transaction', async function() {
+      it('should be successfull payment transaction but balance is in vesting contract', async function() {
         let value = ether(1);
-        let expectedTokenAmount = rateDuringPresaleStage.times(value);
-
         await this.crowdsale.addToWhitelist(investorB);
+        const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investorB }).should.be.fulfilled;
 
-        await this.crowdsale.sendTransaction({ value: value, from: investorB }).should.be.fulfilled;
-        let balance = await this.token.balanceOf(investorB);
-        balance.should.be.bignumber.equal(expectedTokenAmount);
+        const event = logs.find(e => e.event === 'TokenVestingCreated');
+        should.exist(event);
+
+        let funderBalance = await this.token.balanceOf(investorB);
+        funderBalance.should.be.bignumber.equal(0);
+
+        let expectedTokenAmount = rateDuringPresaleStage.times(value);
+        let tokenContractBalance = await this.token.balanceOf(event.args.tokenVestingAdd);
+
+        tokenContractBalance.should.be.bignumber.equal(expectedTokenAmount);
       });
 
       it('should forward funds to wallet', async function () {

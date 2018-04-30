@@ -6,8 +6,11 @@ import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol';
+import 'zeppelin-solidity/contracts/token/ERC20/TokenVesting.sol';
 
 contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, FinalizableCrowdsale {
+
+  event TokenVestingCreated(address indexed beneficiary, address indexed tokenVestingAdd, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, bool vestingRevocable, uint256 vestingFullAmount);
 
   enum TokenSaleStage {
     Private,
@@ -91,6 +94,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
     }
   // =============
+
   function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
 
@@ -102,6 +106,27 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     if (stage == TokenSaleStage.Private) {
       require(totalTokensForSalePerStage[uint256(TokenSaleStage.Private)] >= totalTokensThatWillBeMintedAfterPurchase);
     }
+  }
+
+  function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
+    address beneficiary;
+
+    if (stage == TokenSaleStage.Presale) {
+      uint256 vestingStartDate = openingTime;
+      uint256 vestingCliffDuration = 0;
+      uint256 vestingPeriodDuration = 180 days;
+      bool vestingRevocable = true;
+
+      TokenVesting tokenVesting = new TokenVesting(_beneficiary, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable);
+      TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable, _tokenAmount);
+
+      beneficiary = tokenVesting;
+
+    } else {
+      beneficiary = _beneficiary;
+    }
+
+    _deliverTokens(beneficiary, _tokenAmount);
   }
 
   function startNextSaleStage() public onlyOwner {
@@ -124,11 +149,13 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     _deliverTokens(ecosystemFund, tokensForEcosystem);
 
     uint256 unsoldTokens = totalTokensForSale.sub(alreadyMinted);
+
     if(unsoldTokens > 0) {
       _deliverTokens(unsoldTokensForDistribution, unsoldTokens);
     }
 
     uint256 remainingTokensToBeMinted = tokensForTeam.add(tokensForAdvisors).add(tokensForLegalAndMarketing).add(tokensForBounty);
+
     _deliverTokens(otherFunds, remainingTokensToBeMinted);
   }
 }

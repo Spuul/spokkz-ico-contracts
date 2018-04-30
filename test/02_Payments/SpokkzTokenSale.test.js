@@ -79,6 +79,7 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
       const { logs } = await this.crowdsale.sendTransaction({ value: value, from: authorized });
       const event = logs.find(e => e.event === 'TokenPurchase');
       should.exist(event);
+
       event.args.purchaser.should.equal(authorized);
       event.args.beneficiary.should.equal(authorized);
       event.args.value.should.be.bignumber.equal(value);
