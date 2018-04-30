@@ -95,7 +95,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     super._preValidatePurchase(_beneficiary, _weiAmount);
 
     uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
-    uint256 totalTokensThatWillBeMintedAfterPurchase = tokensThatWillBeMintedAfterPurchase + token.totalSupply();
+    uint256 totalTokensThatWillBeMintedAfterPurchase = tokensThatWillBeMintedAfterPurchase.add(token.totalSupply());
 
     require(totalTokensForSale >= totalTokensThatWillBeMintedAfterPurchase);
 
@@ -118,17 +118,17 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   function finalization() internal {
     super.finalization();
-    
+
     uint256 alreadyMinted = token.totalSupply();
 
     _deliverTokens(ecosystemFund, tokensForEcosystem);
 
-    uint256 unsoldTokens = totalTokensForSale - alreadyMinted;
+    uint256 unsoldTokens = totalTokensForSale.sub(alreadyMinted);
     if(unsoldTokens > 0) {
       _deliverTokens(unsoldTokensForDistribution, unsoldTokens);
     }
 
-    uint256 remainingTokensToBeMinted = tokensForTeam + tokensForAdvisors + tokensForLegalAndMarketing + tokensForBounty;
+    uint256 remainingTokensToBeMinted = tokensForTeam.add(tokensForAdvisors).add(tokensForLegalAndMarketing).add(tokensForBounty);
     _deliverTokens(otherFunds, remainingTokensToBeMinted);
   }
 }
