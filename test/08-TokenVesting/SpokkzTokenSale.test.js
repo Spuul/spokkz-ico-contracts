@@ -151,7 +151,6 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
       await increaseTimeTo(this.start + this.cliff + duration.weeks(12));
 
       const vested = await this.vesting.vestedAmount(this.token.address);
-
       await this.vesting.revoke(this.token.address, { from: owner });
 
       const ownerBalance = await this.token.balanceOf(owner);
@@ -162,11 +161,9 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
       await increaseTimeTo(this.start + this.cliff + duration.weeks(12));
 
       const vestedPre = await this.vesting.vestedAmount(this.token.address);
-
       await this.vesting.revoke(this.token.address, { from: owner });
 
       const vestedPost = await this.vesting.vestedAmount(this.token.address);
-
       vestedPre.should.bignumber.equal(vestedPost);
     });
 
@@ -175,9 +172,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
       await increaseTimeTo(this.start + this.cliff + duration.weeks(12));
 
       await this.vesting.vestedAmount(this.token.address);
-
       await this.vesting.revoke(this.token.address, { from: owner });
-
       await this.vesting.revoke(this.token.address, { from: owner }).should.be.rejectedWith(EVMRevert);
     });
 

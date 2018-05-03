@@ -7,10 +7,12 @@ import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.so
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/TokenVesting.sol';
+import 'zeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol';
 
 contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, FinalizableCrowdsale {
 
-  event TokenVestingCreated(address indexed beneficiary, address indexed tokenVestingAdd, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, bool vestingRevocable, uint256 vestingFullAmount);
+  event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, bool vestingRevocable, uint256 vestingFullAmount);
+  event TokenTimelockCreated(address indexed beneficiary, address indexed tokenTimelock, uint256 releaseTime);
 
   enum TokenSaleStage {
     Private,
@@ -121,6 +123,14 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable, _tokenAmount);
 
       beneficiary = tokenVesting;
+
+    } else if (stage == TokenSaleStage.Crowdsale) {
+      uint256 releaseTime = closingTime.add(7 days);
+
+      TokenTimelock tokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
+      TokenTimelockCreated(_beneficiary, tokenTimelock, releaseTime);
+
+      beneficiary = tokenTimelock;
 
     } else {
       beneficiary = _beneficiary;

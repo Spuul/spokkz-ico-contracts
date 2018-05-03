@@ -111,7 +111,7 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         funderBalance.should.be.bignumber.equal(0);
 
         let expectedTokenAmount = rateDuringPresaleStage.times(value);
-        let tokenContractBalance = await this.token.balanceOf(event.args.tokenVestingAdd);
+        let tokenContractBalance = await this.token.balanceOf(event.args.tokenVesting);
 
         tokenContractBalance.should.be.bignumber.equal(expectedTokenAmount);
       });
