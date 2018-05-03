@@ -35,9 +35,9 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
       // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
       await advanceBlock();
     });
-    
+
     beforeEach(async function () {
-        this.openingTime = latestTime() + duration.weeks(1);
+        this.openingTime = latestTime() + duration.minutes(1);
         this.closingTime = this.openingTime + duration.weeks(1);
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
@@ -84,7 +84,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
       this.afterClosingTime = this.closingTime + duration.seconds(1);
       this.token = await SpokkzToken.new(capTokenSupply, { from: owner });
 
-      this.start = this.openingTime;
+      this.start = this.closingTime;
       this.cliff = 0;
       this.duration = duration.days(180)
       this.amount = new BigNumber(1000);

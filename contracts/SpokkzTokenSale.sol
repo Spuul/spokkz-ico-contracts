@@ -112,7 +112,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     address beneficiary;
 
     if (stage == TokenSaleStage.Presale) {
-      uint256 vestingStartDate = openingTime;
+      uint256 vestingStartDate = closingTime.add(7 days);
       uint256 vestingCliffDuration = 0;
       uint256 vestingPeriodDuration = 180 days;
       bool vestingRevocable = true;
