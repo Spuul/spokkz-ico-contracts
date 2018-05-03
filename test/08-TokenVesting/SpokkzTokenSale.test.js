@@ -31,8 +31,12 @@ const should = require('chai')
 
 contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemFund, unsoldTokensForDistribution, otherFunds]) {
   describe('Token vesting creation', function () {
-
-      before(async function () {
+    before(async function () {
+      // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+      await advanceBlock();
+    });
+    
+    beforeEach(async function () {
         this.openingTime = latestTime() + duration.weeks(1);
         this.closingTime = this.openingTime + duration.weeks(1);
         this.afterClosingTime = this.closingTime + duration.seconds(1);
@@ -69,6 +73,10 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
 
   describe('Token vesting lifecycle', function () {
 
+    before(async function () {
+      // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
+      await advanceBlock();
+    });
 
     beforeEach(async function () {
       this.openingTime = latestTime() + duration.minutes(1);
