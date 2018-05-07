@@ -24,6 +24,8 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
+const raisedPrivatelyPreDeployment = new BigNumber(0);
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -46,6 +48,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
           rateDuringPrivateStage,
           rateDuringPresaleStage,
           rateDuringCrowdsaleStage,
+          raisedPrivatelyPreDeployment,
           wallet,
           this.token.address,
           cap,
@@ -56,6 +59,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
           otherFunds,
            { from: owner });
         await this.token.transferOwnership(this.crowdsale.address);
+        await this.crowdsale.start({ from: owner });
       });
 
       it('token vesting should be created', async function () {

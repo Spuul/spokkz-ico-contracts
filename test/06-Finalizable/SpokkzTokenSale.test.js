@@ -23,6 +23,8 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
+const raisedPrivatelyPreDeployment = new BigNumber(0);
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -45,6 +47,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFu
           rateDuringPrivateStage,
           rateDuringPresaleStage,
           rateDuringCrowdsaleStage,
+          raisedPrivatelyPreDeployment,
           wallet,
           this.token.address,
           cap,
@@ -55,10 +58,11 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFu
           otherFunds,
            { from: owner });
         await this.token.transferOwnership(this.crowdsale.address);
+
       });
 
       it('cannot be finalized before ending', async function () {
-        await this.crowdsale.finalize({ from: thirdparty }).should.be.rejectedWith(EVMRevert);
+        await this.crowdsale.finalize({ from: owner }).should.be.rejectedWith(EVMRevert);
       });
 
       it('cannot be finalized by third party after ending', async function () {

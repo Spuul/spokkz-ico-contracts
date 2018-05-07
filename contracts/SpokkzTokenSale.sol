@@ -14,14 +14,17 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, bool vestingRevocable, uint256 vestingFullAmount);
   event TokenTimelockCreated(address indexed beneficiary, address indexed tokenTimelock, uint256 releaseTime);
 
+  event Start();
+  event Pause();
+  event Unpause();
+
   enum TokenSaleStage {
     Private,
     Presale,
     Crowdsale
   }
 
-  uint constant numberOFStages = 3;
-
+  uint constant public numberOFStages = 3;
 
   mapping (uint256 => uint256) public ratePerStage;
   mapping (uint256 => uint256) public totalTokensForSalePerStage;
@@ -48,10 +51,11 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   address public unsoldTokensForDistribution;
   address public otherFunds;
 
+  uint256 public raisedPrivatelyPreDeployment;
+  uint256 public totalTokensSoldPrivatelyPreDeployment;
 
-  // Events
-  event EthTransferred(string text);
-  event EthRefunded(string text);
+  bool public hasStarted = false;
+  bool public isPaused = false;
 
   // Constructor
   // ============
@@ -59,6 +63,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       uint256 _rateDuringPrivateStage,
       uint256 _rateDuringPresaleStage,
       uint256 _rateDuringCrowdsaleStage,
+      uint256 _raisedPrivatelyPreDeployment,
       address _wallet,
       ERC20 _token,
       uint256 _cap, uint256
@@ -90,14 +95,23 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       unsoldTokensForDistribution = _unsoldTokensForDistribution;
       otherFunds = _otherFunds;
 
-      /* totalWeiRaisedPerStage[uint256(TokenSaleStage.Private)] = 0;
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.Presale)] = 0;
-      totalWeiRaisedPerStage[uint256(TokenSaleStage.Crowdsale)] = 0; */
-
+      raisedPrivatelyPreDeployment = _raisedPrivatelyPreDeployment;
     }
   // =============
 
-  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) internal {
+  modifier whenNotPaused() {
+    require(hasStarted);
+    require(!isPaused);
+    _;
+  }
+
+  modifier whenPaused() {
+    require(hasStarted);
+    require(isPaused);
+    _;
+  }
+
+  function _preValidatePurchase(address _beneficiary, uint256 _weiAmount) whenNotPaused internal {
     super._preValidatePurchase(_beneficiary, _weiAmount);
 
     uint256 tokensThatWillBeMintedAfterPurchase = msg.value.mul(rate);
@@ -139,7 +153,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     _deliverTokens(beneficiary, _tokenAmount);
   }
 
-  function startNextSaleStage() public onlyOwner {
+  function startNextSaleStage() public onlyOwner whenNotPaused {
     require(stage != TokenSaleStage.Crowdsale);
 
     if (stage == TokenSaleStage.Private) {
@@ -149,6 +163,18 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     }
 
     rate = ratePerStage[uint256(stage)];
+  }
+
+  function minTokensSoldPrivatelyPreDeployment() private {
+    require(!hasStarted);
+
+   if (raisedPrivatelyPreDeployment > 0) {
+      uint256 weiAmount = raisedPrivatelyPreDeployment;
+      uint256 tokenAmount = weiAmount.mul(ratePerStage[uint256(TokenSaleStage.Private)]);
+
+      weiRaised = weiRaised.add(weiAmount);
+      _deliverTokens(otherFunds, tokenAmount);
+    }
   }
 
   function finalization() internal {
@@ -167,5 +193,23 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     uint256 remainingTokensToBeMinted = tokensForTeam.add(tokensForAdvisors).add(tokensForLegalAndMarketing).add(tokensForBounty);
 
     _deliverTokens(otherFunds, remainingTokensToBeMinted);
+  }
+
+  function start() public onlyOwner {
+    require(!hasStarted);
+
+    minTokensSoldPrivatelyPreDeployment();
+    hasStarted = true;
+    Start();
+  }
+
+  function pause() onlyOwner whenNotPaused public {
+    isPaused = true;
+    Pause();
+  }
+
+  function unpause() onlyOwner whenPaused public {
+    isPaused = false;
+    Unpause();
   }
 }

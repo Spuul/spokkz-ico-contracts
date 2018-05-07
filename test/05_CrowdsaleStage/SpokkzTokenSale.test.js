@@ -22,6 +22,8 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
+const raisedPrivatelyPreDeployment = new BigNumber(0);
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -40,10 +42,11 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
+        await this.crowdsale.start();
       });
 
       it('should be able to start next sale if owner', async function() {
@@ -55,17 +58,6 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         const postStage = await this.crowdsale.stage.call();
         postStage.should.be.bignumber.equal(CROWDSALE_STAGE);
       });
-
-      // it('should be successfull payment transaction', async function() {
-      //   let value = ether(1);
-      //   let expectedTokenAmount = rateDuringCrowdsaleStage.times(value);
-      //
-      //   await this.crowdsale.addToWhitelist(investorA);
-      //
-      //   await this.crowdsale.sendTransaction({ value: value, from: investorA }).should.be.fulfilled;
-      //   let balance = await this.token.balanceOf(investorA);
-      //   balance.should.be.bignumber.equal(expectedTokenAmount);
-      // });
 
       it('should be successfull payment transaction but balance is in token timelock contract', async function() {
         let value = ether(1);

@@ -22,7 +22,7 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
-
+const raisedPrivatelyPreDeployment = new BigNumber(0);
 
 const should = require('chai')
   .use(require('chai-as-promised'))
@@ -42,10 +42,11 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
+        await this.crowdsale.start();
       });
 
       it('should not be able to start next sale if not owner', async function () {
@@ -78,12 +79,13 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
 
         await this.crowdsale.addToWhitelist(investorA);
+        await this.crowdsale.start();
       });
 
       it('should be able to buy tokens in private stage', async function () {
@@ -144,17 +146,18 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
+
+        await this.crowdsale.start();
 
         await this.crowdsale.addToWhitelist(investorA);
 
         const totalTokensForSaleDuringPrivateStage = await this.crowdsale.totalTokensForSaleDuringPrivateStage.call();
         const remainingTokenCostForPrivateStage = totalTokensForSaleDuringPrivateStage.dividedBy(rateDuringPrivateStage);
         await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
-
         this.crowdsale.startNextSaleStage().should.be.fulfilled;
       });
 

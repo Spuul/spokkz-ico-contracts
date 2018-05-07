@@ -23,6 +23,8 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
+const raisedPrivatelyPreDeployment = new BigNumber(0);
+
 const should = require('chai')
   .use(require('chai-as-promised'))
   .use(require('chai-bignumber')(BigNumber))
@@ -45,6 +47,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, investorA, ecosystemFun
           rateDuringPrivateStage,
           rateDuringPresaleStage,
           rateDuringCrowdsaleStage,
+          raisedPrivatelyPreDeployment,
           wallet,
           this.token.address,
           cap,
@@ -57,10 +60,13 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, investorA, ecosystemFun
         await this.token.transferOwnership(this.crowdsale.address);
         await increaseTimeTo(this.openingTime);
 
+        await this.crowdsale.start({ from: owner });
+
         await this.crowdsale.startNextSaleStage({from: owner }); // presale
         await this.crowdsale.startNextSaleStage({from: owner }); // crowdsale
 
         await this.crowdsale.addToWhitelist(investorA, {from: owner});
+
       });
 
       it('should be successful if below the cap', async function () {

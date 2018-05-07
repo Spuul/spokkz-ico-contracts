@@ -16,6 +16,7 @@ const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
 
 const capTokenSupply = new BigNumber('1e27'); // 1 Billion
+const raisedPrivatelyPreDeployment = new BigNumber(0);
 
 const should = require('chai')
   .use(require('chai-as-promised'))
@@ -35,11 +36,13 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await SpokkzToken.new(capTokenSupply);
-    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime,ecosystemFund, unsoldTokensForDistribution, otherFunds);
+    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime,ecosystemFund, unsoldTokensForDistribution, otherFunds);
     await this.token.transferOwnership(this.crowdsale.address);
 
     await increaseTimeTo(this.openingTime);
     await this.crowdsale.addToWhitelist(authorized);
+
+    await this.crowdsale.start();
   });
 
   describe('reporting whitelisted', function () {

@@ -47,7 +47,6 @@ contract('SpokkzTokenSale', function(accounts) {
     it('should set the token supply and distribution correctly', function(done) {
       SpokkzTokenSale.deployed().then(async function(instance) {
         const maxSupplyOfTokens = await instance.maxSupplyOfTokens.call();
-
         const totalTokensForSale = await instance.totalTokensForSale.call();
         const tokensForEcosystem = await instance.tokensForEcosystem.call();
         const tokensForTeam = await instance.tokensForTeam.call();
@@ -72,6 +71,22 @@ contract('SpokkzTokenSale', function(accounts) {
 
         done();
       });
+    });
+
+    it('should set the token supply in token contract', function(done) {
+      SpokkzToken.deployed().then(async function(instance) {
+        const cap = await instance.cap.call();
+        cap.should.be.bignumber.equal(MAX_SUPPLY_OF_TOKENS);
+        done();
+      })
+    });
+
+    it('should set start property to false by default', function(done) {
+      SpokkzTokenSale.deployed().then(async function(instance) {
+        const hasStarted = await instance.hasStarted.call();
+        assert.isFalse(hasStarted);
+        done();
+      })
     });
   });
 });

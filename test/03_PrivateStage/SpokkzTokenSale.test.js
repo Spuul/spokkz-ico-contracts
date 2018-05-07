@@ -14,9 +14,8 @@ const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
 const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
-
 const capTokenSupply = new BigNumber('1e27'); // 1 Billion
-
+const raisedPrivatelyPreDeployment = new BigNumber(0);
 
 const should = require('chai')
   .use(require('chai-as-promised'))
@@ -37,10 +36,11 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
+        await this.crowdsale.start();
       });
 
       it('should reject transaction if not whitelisted ', async function () {
@@ -84,11 +84,12 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
 
         await increaseTimeTo(this.openingTime);
         await this.crowdsale.addToWhitelist(investorA);
+        await this.crowdsale.start();
       });
 
       it('should be successful if within private token reserve', async function () {
@@ -110,6 +111,42 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         const remainingTokenCostForPrivateStage = remainingTokensForPrivateStage.dividedBy(rateDuringPrivateStage);
 
         await this.crowdsale.sendTransaction({ value: remainingTokenCostForPrivateStage, from: investorA }).should.be.fulfilled;
+      });
+    });
+
+    describe('Mink tokens sold pre-deployment', function () {
+
+      beforeEach(async function () {
+        await advanceBlock();
+
+        this.openingTime = latestTime() + duration.days(1);
+        this.closingTime = this.openingTime + duration.weeks(1);
+        this.afterClosingTime = this.closingTime + duration.seconds(1);
+
+        this.token = await SpokkzToken.new(capTokenSupply);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, ether(2), wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, unsoldTokensForDistribution, otherFunds);
+        await this.token.transferOwnership(this.crowdsale.address);
+
+        await increaseTimeTo(this.openingTime);
+        await this.crowdsale.addToWhitelist(investorA);
+      });
+
+      it('should not be able to start if not owner', async function () {
+        await this.crowdsale.start({ from: purchaser}).should.be.rejected;
+        const hasStarted = await this.crowdsale.hasStarted.call();
+        assert.isFalse(hasStarted);
+      });
+
+      it('should be able to start if owner', async function() {
+        await this.crowdsale.start().should.be.fulfilled;
+        const hasStarted = await this.crowdsale.hasStarted.call();
+        assert.isTrue(hasStarted);
+      });
+
+      it('should be able to mint token sold pre deployment', async function() {
+        await this.crowdsale.start().should.be.fulfilled;
+        const hasStarted = await this.crowdsale.hasStarted.call();
+        assert.isTrue(hasStarted);
       });
     });
   });

@@ -3,8 +3,9 @@ var SpokkzTokenSale = artifacts.require("./SpokkzTokenSale.sol")
 
 module.exports = function(deployer, network, accounts) {
 
-  const additionalTime = 30000; // 30 seconds
+  const BigNumber = web3.BigNumber;
 
+  const additionalTime = 30000; // 30 seconds
   const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000); // Now + 30 seconds
   const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);          // Today + 30 days
 
@@ -12,13 +13,15 @@ module.exports = function(deployer, network, accounts) {
   const rateDuringPresaleStage = 7058;
   const rateDuringCrowdsaleStage = 6000;
 
-  const cap = 50000000000000000000000;  // The cap is 50,000 Ethers
-  const capTokenSupply = 1000000000000000000000000000;  // The cap token supply is 1 Billion SPOKKZ
+  const cap = new BigNumber(web3.toWei(50000, 'ether')); // Hard cap is 50,000 ether
+  const capTokenSupply = new BigNumber('1e27');         // 1 Billion
 
   const wallet = accounts[1]
   const ecosystemFund = accounts[2]
   const unsoldTokensForDistribution = accounts[3]
-  const otherFunds = accounts[4] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund
+  const otherFunds = accounts[4] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund, tokensAlreadySold
+
+  const raisedPrivatelyPreDeployment = new BigNumber(web3.toWei(0, 'ether'));
 
   deployer.deploy(SpokkzToken, capTokenSupply).then(function() {
     return deployer.deploy(
@@ -26,6 +29,7 @@ module.exports = function(deployer, network, accounts) {
       rateDuringPrivateStage,
       rateDuringPresaleStage,
       rateDuringCrowdsaleStage,
+      raisedPrivatelyPreDeployment,
       wallet,
       SpokkzToken.address,
       cap,
@@ -40,5 +44,4 @@ module.exports = function(deployer, network, accounts) {
       })
     });
   })
-
 };
