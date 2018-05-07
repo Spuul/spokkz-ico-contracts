@@ -28,7 +28,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   mapping (uint256 => uint256) public ratePerStage;
   mapping (uint256 => uint256) public totalTokensForSalePerStage;
-  /* mapping (uint256 => uint256) public totalWeiRaisedPerStage; */
 
   TokenSaleStage public stage = TokenSaleStage.Private;
 
