@@ -6,8 +6,8 @@ module.exports = function(deployer, network, accounts) {
   const BigNumber = web3.BigNumber;
 
   const additionalTime = 60000 * 5;
-  const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000); // Now + 30 seconds
-  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);          // Today + 30 days
+  const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000);
+  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);          
 
   const rateDuringPrivateStage = 12000;
   const rateDuringPresaleStage = 7058;
