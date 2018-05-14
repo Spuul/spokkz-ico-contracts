@@ -15,6 +15,7 @@ const scaleDownValue = 1000;
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
+const goal = ether(11111).dividedBy(scaleDownValue);
 const cap = ether(45000).dividedBy(scaleDownValue);
 
 const capTokenSupply = new BigNumber('1e27');        // 1 billion tokens
@@ -51,6 +52,7 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, beneficiary, ecosystemF
           raisedPrivatelyPreDeployment,
           wallet,
           this.token.address,
+          goal,
           cap,
           this.openingTime,
           this.closingTime,

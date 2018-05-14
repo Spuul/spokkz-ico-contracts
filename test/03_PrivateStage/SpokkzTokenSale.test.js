@@ -5,6 +5,7 @@ import latestTime from '../../node_modules/zeppelin-solidity/test/helpers/latest
 
 const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
 const SpokkzToken = artifacts.require('SpokkzToken');
+const RefundVault = artifacts.require('RefundVault');
 
 const BigNumber = web3.BigNumber;
 
@@ -13,7 +14,9 @@ const scaleDownValue = 100;
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
+const goal = ether(11111).dividedBy(scaleDownValue); // 11.111 ethers
 const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
+
 const capTokenSupply = new BigNumber('1e27'); // 1 Billion
 const raisedPrivatelyPreDeployment = new BigNumber(0);
 
@@ -36,8 +39,12 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, goal, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
+
+        const vaultAddress = await this.crowdsale.vault.call();
+        this.vault = RefundVault.at(vaultAddress);
+
 
         await increaseTimeTo(this.openingTime);
         await this.crowdsale.start();
@@ -65,19 +72,17 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         tokenContractBalance.should.be.bignumber.equal(expectedTokenAmount);
       });
 
-      it('should forward funds to wallet', async function () {
+      it('should forward funds to vault', async function () {
         let value = ether(1);
-
-        const pre = web3.eth.getBalance(wallet);
         await this.crowdsale.sendTransaction({ value, from: investorA });
-        const post = web3.eth.getBalance(wallet);
 
-        post.minus(pre).should.be.bignumber.equal(value);
-      });
+        const vaultAddress = await this.crowdsale.vault.call();
+        const vaultBalance = web3.eth.getBalance(vaultAddress);
 
-      it('should tally post wallet balance', async function () {
-        const postWalletBalance = web3.eth.getBalance(wallet);
-        postWalletBalance.should.be.bignumber.equal(preWalletBalance.plus(ether(2)));
+        vaultBalance.should.be.bignumber.equal(ether(2));
+
+        const investorDeposit = await this.vault.deposited(investorA);
+        investorDeposit.should.be.bignumber.equal(ether(2));
       });
     });
 
@@ -91,8 +96,11 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, goal, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
+
+        const vaultAddress = await this.crowdsale.vault.call();
+        this.vault = RefundVault.at(vaultAddress);
 
         await increaseTimeTo(this.openingTime);
         await this.crowdsale.addToWhitelist(investorA);
@@ -131,8 +139,11 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, ether(2), wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, ether(2), wallet, this.token.address, goal, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
+
+        const vaultAddress = await this.crowdsale.vault.call();
+        this.vault = RefundVault.at(vaultAddress);
 
         await increaseTimeTo(this.openingTime);
         await this.crowdsale.addToWhitelist(investorA);

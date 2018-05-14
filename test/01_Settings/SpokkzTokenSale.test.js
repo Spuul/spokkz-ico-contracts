@@ -10,6 +10,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
+const GOAL = ether(11111);
 const CAP = ether(50000);
 
 const PRIVATE_STAGE = new BigNumber(0);
@@ -52,15 +53,16 @@ contract('SpokkzTokenSale', function(accounts) {
         const tokensForAdvisors = await instance.tokensForAdvisors.call();
         const tokensForLegalAndMarketing = await instance.tokensForLegalAndMarketing.call();
         const tokensForBounty = await instance.tokensForBounty.call();
+        const softCap = await instance.goal.call();
 
         maxSupplyOfTokens.should.be.bignumber.equal(MAX_SUPPLY_OF_TOKENS);
-
         totalTokensForSale.should.be.bignumber.equal(TOTAL_TOKENS_FOR_SALE);
         tokensForEcosystem.should.be.bignumber.equal(TOKENS_FOR_ECOSYSTEM);
         tokensForTeam.should.be.bignumber.equal(TOKENS_FOR_TEAM);
         tokensForAdvisors.should.be.bignumber.equal(TOKENS_FOR_ADVISORS);
         tokensForLegalAndMarketing.should.be.bignumber.equal(TOKENS_FOR_LEGAL_AND_MARKETING);
         tokensForBounty.should.be.bignumber.equal(TOKENS_FOR_BOUNTY);
+        softCap.should.be.bignumber.equal(GOAL);
 
         totalTokensForSale.plus(tokensForEcosystem)
           .plus(tokensForTeam)

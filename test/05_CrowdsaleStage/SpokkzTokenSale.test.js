@@ -5,6 +5,7 @@ import latestTime from '../../node_modules/zeppelin-solidity/test/helpers/latest
 
 const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
 const SpokkzToken = artifacts.require('SpokkzToken');
+const RefundVault = artifacts.require('RefundVault');
 
 const BigNumber = web3.BigNumber;
 
@@ -13,6 +14,7 @@ const scaleDownValue = 1000;
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
+const goal = ether(11111).dividedBy(scaleDownValue); // 11.111 ethers
 const cap = ether(50000).dividedBy(scaleDownValue); // 50 ethers
 
 const capTokenSupply = new BigNumber('1e27');        // 1 billion tokens
@@ -42,8 +44,11 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
         this.afterClosingTime = this.closingTime + duration.seconds(1);
 
         this.token = await SpokkzToken.new(capTokenSupply);
-        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
+        this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, goal, cap, this.openingTime, this.closingTime, ecosystemFund, otherFunds);
         await this.token.transferOwnership(this.crowdsale.address);
+
+        this.vaultAddress = await this.crowdsale.vault.call();
+        this.vault = RefundVault.at(this.vaultAddress);
 
         await increaseTimeTo(this.openingTime);
         await this.crowdsale.start();
@@ -79,21 +84,21 @@ contract('SpokkzTokenSale', function ([_, wallet, investorA, investorB, investor
       it('should forward funds to wallet', async function() {
         let value = ether(1);
 
-        const pre = web3.eth.getBalance(wallet);
         await this.crowdsale.addToWhitelist(investorB);
-
         await this.crowdsale.sendTransaction({ value, from: investorB }).should.be.fulfilled;
-        const post = web3.eth.getBalance(wallet);
 
-        post.minus(pre).should.be.bignumber.equal(value);
+        const vaultBalance = web3.eth.getBalance(this.vaultAddress);
+        vaultBalance.should.be.bignumber.equal(ether(2));
+
+        const investorADeposit = await this.vault.deposited(investorA);
+        investorADeposit.should.be.bignumber.equal(ether(1));
+
+        const investorBDeposit = await this.vault.deposited(investorB);
+        investorBDeposit.should.be.bignumber.equal(ether(1));
+
       });
 
-      it('should tally post wallet balance', async function () {
-        const totalTokensForSale = await this.crowdsale.totalTokensForSale.call();
 
-        const postWalletBalance = web3.eth.getBalance(wallet);
-        postWalletBalance.should.be.bignumber.equal(preWalletBalance.plus(ether(2)));
-      });
 
       it('should be successful if sold tokens is equal to token sale reserved', async function () {
         const totalSupply = await this.token.totalSupply();

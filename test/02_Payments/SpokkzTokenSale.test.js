@@ -13,6 +13,7 @@ const scaleDownValue = 100;
 const rateDuringPrivateStage = new BigNumber(12000).times(scaleDownValue);
 const rateDuringPresaleStage = new BigNumber(7058).times(scaleDownValue);
 const rateDuringCrowdsaleStage = new BigNumber(6000).times(scaleDownValue);
+const goal = ether(11111).dividedBy(scaleDownValue); // 11.111 ethers
 const cap = ether(50000).dividedBy(scaleDownValue); // 500 ethers
 
 const capTokenSupply = new BigNumber('1e27'); // 1 Billion
@@ -36,7 +37,7 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
     this.afterClosingTime = this.closingTime + duration.seconds(1);
 
     this.token = await SpokkzToken.new(capTokenSupply);
-    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, cap, this.openingTime, this.closingTime,ecosystemFund, otherFunds);
+    this.crowdsale = await SpokkzTokenSale.new(rateDuringPrivateStage,rateDuringPresaleStage,rateDuringCrowdsaleStage, raisedPrivatelyPreDeployment, wallet, this.token.address, goal, cap, this.openingTime, this.closingTime,ecosystemFund, otherFunds);
     await this.token.transferOwnership(this.crowdsale.address);
 
     await increaseTimeTo(this.openingTime);
@@ -89,11 +90,13 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
-    it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
+    it('should forward funds to vault', async function () {
       await this.crowdsale.sendTransaction({ value, from: authorized });
-      const post = web3.eth.getBalance(wallet);
-      post.minus(pre).should.be.bignumber.equal(value);
+
+      const vaultAddress = await this.crowdsale.vault.call();
+      const vaultBalance = web3.eth.getBalance(vaultAddress);
+
+      vaultBalance.should.be.bignumber.equal(value);
     });
   });
 
@@ -112,10 +115,12 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
     });
 
     it('should forward funds to wallet', async function () {
-      const pre = web3.eth.getBalance(wallet);
       await this.crowdsale.buyTokens(authorized, { value, from: purchaser });
-      const post = web3.eth.getBalance(wallet);
-      post.minus(pre).should.be.bignumber.equal(value);
+
+      const vaultAddress = await this.crowdsale.vault.call();
+      const vaultBalance = web3.eth.getBalance(vaultAddress);
+
+      vaultBalance.should.be.bignumber.equal(value);
     });
   });
 });

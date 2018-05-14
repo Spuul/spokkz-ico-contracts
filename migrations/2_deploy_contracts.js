@@ -7,13 +7,15 @@ module.exports = function(deployer, network, accounts) {
 
   const additionalTime = 60000 * 5;
   const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000);
-  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);          
+  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);
 
   const rateDuringPrivateStage = 12000;
   const rateDuringPresaleStage = 7058;
   const rateDuringCrowdsaleStage = 6000;
 
-  const cap = new BigNumber(web3.toWei(50000, 'ether')); // Hard cap is 50,000 ether
+  const goal = new BigNumber(web3.toWei(11111, 'ether')); // Soft cap is 11,111 ether
+  const cap = new BigNumber(web3.toWei(50000, 'ether'));  // Hard cap is 50,000 ether
+
   const capTokenSupply = new BigNumber('1e27');         // 1 Billion
 
   const wallet = accounts[1]
@@ -31,6 +33,7 @@ module.exports = function(deployer, network, accounts) {
       raisedPrivatelyPreDeployment,
       wallet,
       SpokkzToken.address,
+      goal,
       cap,
       openingTime,
       closingTime,

@@ -5,11 +5,11 @@ import './SpokkzToken.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
 import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/distribution/FinalizableCrowdsale.sol';
+import 'zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/TokenVesting.sol';
 import 'zeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol';
 
-contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, FinalizableCrowdsale {
+contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, RefundableCrowdsale {
 
   event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, uint256 vestingFullAmount);
   event TokenTimelockCreated(address indexed beneficiary, address indexed tokenTimelock, uint256 releaseTime);
@@ -64,14 +64,16 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       uint256 _raisedPrivatelyPreDeployment,
       address _wallet,
       ERC20 _token,
-      uint256 _cap, uint256
-      _openingTime, uint256
-      _closingTime,
+      uint256 _goal,
+      uint256 _cap,
+      uint256 _openingTime,
+      uint256 _closingTime,
       address _ecosystemFund,
       address _otherFunds) public
     CappedCrowdsale(_cap)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
     TimedCrowdsale(_openingTime, _closingTime)
+    RefundableCrowdsale(_goal)
     {
       require(_rateDuringPrivateStage > 0);
       require(_rateDuringPresaleStage > 0);
