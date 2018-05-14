@@ -16,7 +16,6 @@ const PRIVATE_STAGE = new BigNumber(0);
 const PRESALE_STAGE = new BigNumber(1);
 const CROWDSALE_STAGE = new BigNumber(2);
 
-
 const MAX_SUPPLY_OF_TOKENS = new BigNumber('1e27');
 const TOTAL_TOKENS_FOR_SALE = new BigNumber('3e26');
 

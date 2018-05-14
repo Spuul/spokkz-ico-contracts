@@ -30,7 +30,7 @@ const should = require('chai')
   .use(require('chai-bignumber')(BigNumber))
   .should();
 
-contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFund, unsoldTokensForDistribution, otherFunds]) {
+contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFund, otherFunds]) {
   describe('Finalizing crowdsale', function () {
       before(async function () {
         // Advance to the next block to correctly read time in the solidity "now" function interpreted by testrpc
@@ -54,7 +54,6 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFu
           this.openingTime,
           this.closingTime,
           ecosystemFund,
-          unsoldTokensForDistribution,
           otherFunds,
            { from: owner });
         await this.token.transferOwnership(this.crowdsale.address);

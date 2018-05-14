@@ -18,8 +18,7 @@ module.exports = function(deployer, network, accounts) {
 
   const wallet = accounts[1]
   const ecosystemFund = accounts[2]
-  const unsoldTokensForDistribution = accounts[3]
-  const otherFunds = accounts[4] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund, tokensAlreadySold
+  const otherFunds = accounts[3] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund, tokensAlreadySold
 
   const raisedPrivatelyPreDeployment = new BigNumber(web3.toWei(0, 'ether'));
 
@@ -36,7 +35,6 @@ module.exports = function(deployer, network, accounts) {
       openingTime,
       closingTime,
       ecosystemFund,
-      unsoldTokensForDistribution,
       otherFunds
     ).then(function() {
       return SpokkzToken.deployed().then(function(spokkzToken) {

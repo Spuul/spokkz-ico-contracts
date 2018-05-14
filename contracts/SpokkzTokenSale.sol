@@ -47,7 +47,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   uint256 public totalTokensForSaleDuringCrowdsaleStage = 45000000 * (10 ** uint256(18));   // tokens for sale on Crowdsale stage is  45 million, 15% of total tokens for sale, 4.5% of token supply
 
   address public ecosystemFund;
-  address public unsoldTokensForDistribution;
   address public otherFunds;
 
   uint256 public raisedPrivatelyPreDeployment;
@@ -69,7 +68,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       _openingTime, uint256
       _closingTime,
       address _ecosystemFund,
-      address _unsoldTokensForDistribution,
       address _otherFunds) public
     CappedCrowdsale(_cap)
     Crowdsale(_rateDuringPrivateStage, _wallet, _token)
@@ -79,7 +77,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       require(_rateDuringPresaleStage > 0);
       require(_rateDuringCrowdsaleStage > 0);
       require(_ecosystemFund != 0);
-      require(_unsoldTokensForDistribution != 0);
       require(_otherFunds != 0);
 
       ratePerStage[uint256(TokenSaleStage.Private)] = _rateDuringPrivateStage;
@@ -91,7 +88,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       totalTokensForSalePerStage[uint256(TokenSaleStage.Crowdsale)] = totalTokensForSaleDuringCrowdsaleStage;
 
       ecosystemFund = _ecosystemFund;
-      unsoldTokensForDistribution = _unsoldTokensForDistribution;
       otherFunds = _otherFunds;
 
       raisedPrivatelyPreDeployment = _raisedPrivatelyPreDeployment;
