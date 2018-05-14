@@ -165,7 +165,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     rate = ratePerStage[uint256(stage)];
   }
 
-  function minTokensSoldPrivatelyPreDeployment() private {
+  function mintTokensSoldPrivatelyPreDeployment() private {
     require(!hasStarted);
 
    if (raisedPrivatelyPreDeployment > 0) {
@@ -192,7 +192,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   function start() public onlyOwner {
     require(!hasStarted);
 
-    minTokensSoldPrivatelyPreDeployment();
+    mintTokensSoldPrivatelyPreDeployment();
     hasStarted = true;
     Start();
   }
