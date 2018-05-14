@@ -49,13 +49,20 @@ contract('SpokkzTokenSale', function ([_, wallet, purchaser, investorA, investor
 
       it('should be successful transaction if whitelisted', async function () {
         let value = ether(1);
-        let expectedTokenAmount = rateDuringPrivateStage.times(value);
 
         await this.crowdsale.addToWhitelist(investorA);
 
-        await this.crowdsale.sendTransaction({ value: value, from: investorA }).should.be.fulfilled;
-        let balance = await this.token.balanceOf(investorA);
-        balance.should.be.bignumber.equal(expectedTokenAmount);
+        const { logs } = await this.crowdsale.sendTransaction({ value: value, from: investorA }).should.be.fulfilled;
+
+        const event = logs.find(e => e.event === 'TokenTimelockCreated');
+        should.exist(event);
+
+        let funderBalance = await this.token.balanceOf(investorA);
+        funderBalance.should.be.bignumber.equal(0);
+
+        let expectedTokenAmount = rateDuringPrivateStage.times(value);
+        let tokenContractBalance = await this.token.balanceOf(event.args.tokenTimelock);
+        tokenContractBalance.should.be.bignumber.equal(expectedTokenAmount);
       });
 
       it('should forward funds to wallet', async function () {

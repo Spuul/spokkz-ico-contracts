@@ -89,12 +89,6 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
     });
 
-    it('should assign tokens to sender', async function () {
-      await this.crowdsale.sendTransaction({ value: value, from: authorized });
-      let balance = await this.token.balanceOf(authorized);
-      balance.should.be.bignumber.equal(expectedTokenAmount);
-    });
-
     it('should forward funds to wallet', async function () {
       const pre = web3.eth.getBalance(wallet);
       await this.crowdsale.sendTransaction({ value, from: authorized });
@@ -115,12 +109,6 @@ contract('SpokkzTokenSale', function ([_, wallet, authorized, purchaser, unautho
       event.args.beneficiary.should.equal(authorized);
       event.args.value.should.be.bignumber.equal(value);
       event.args.amount.should.be.bignumber.equal(expectedTokenAmount);
-    });
-
-    it('should assign tokens to beneficiary', async function () {
-      await this.crowdsale.buyTokens(authorized, { value, from: purchaser });
-      const balance = await this.token.balanceOf(authorized);
-      balance.should.be.bignumber.equal(expectedTokenAmount);
     });
 
     it('should forward funds to wallet', async function () {

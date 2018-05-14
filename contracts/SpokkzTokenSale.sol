@@ -11,7 +11,7 @@ import 'zeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol';
 
 contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, FinalizableCrowdsale {
 
-  event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, bool vestingRevocable, uint256 vestingFullAmount);
+  event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, uint256 vestingFullAmount);
   event TokenTimelockCreated(address indexed beneficiary, address indexed tokenTimelock, uint256 releaseTime);
 
   event Start();
@@ -125,28 +125,33 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     address beneficiary;
+    uint256 releaseTime;
+    
+    if (stage == TokenSaleStage.Private) {
+      releaseTime = closingTime.add(180 days);
 
-    if (stage == TokenSaleStage.Presale) {
+      TokenTimelock privateTokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
+      TokenTimelockCreated(_beneficiary, privateTokenTimelock, releaseTime);
+
+      beneficiary = privateTokenTimelock;
+    } else if (stage == TokenSaleStage.Presale){
+
       uint256 vestingStartDate = closingTime.add(7 days);
       uint256 vestingCliffDuration = 0;
       uint256 vestingPeriodDuration = 180 days;
       bool vestingRevocable = true;
 
       TokenVesting tokenVesting = new TokenVesting(_beneficiary, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable);
-      TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable, _tokenAmount);
+      TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, _tokenAmount);
 
       beneficiary = tokenVesting;
-
     } else if (stage == TokenSaleStage.Crowdsale) {
-      uint256 releaseTime = closingTime.add(7 days);
+      releaseTime = closingTime.add(7 days);
 
-      TokenTimelock tokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
-      TokenTimelockCreated(_beneficiary, tokenTimelock, releaseTime);
+      TokenTimelock crowdsaleTokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
+      TokenTimelockCreated(_beneficiary, crowdsaleTokenTimelock, releaseTime);
 
-      beneficiary = tokenTimelock;
-
-    } else {
-      beneficiary = _beneficiary;
+      beneficiary = crowdsaleTokenTimelock;
     }
 
     _deliverTokens(beneficiary, _tokenAmount);
