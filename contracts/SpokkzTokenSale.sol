@@ -126,7 +126,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
   function _processPurchase(address _beneficiary, uint256 _tokenAmount) internal {
     address beneficiary;
     uint256 releaseTime;
-    
+
     if (stage == TokenSaleStage.Private) {
       releaseTime = closingTime.add(180 days);
 
@@ -187,12 +187,6 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     uint256 alreadyMinted = token.totalSupply();
 
     _deliverTokens(ecosystemFund, tokensForEcosystem);
-
-    uint256 unsoldTokens = totalTokensForSale.sub(alreadyMinted);
-
-    if(unsoldTokens > 0) {
-      _deliverTokens(unsoldTokensForDistribution, unsoldTokens);
-    }
 
     uint256 remainingTokensToBeMinted = tokensForTeam.add(tokensForAdvisors).add(tokensForLegalAndMarketing).add(tokensForBounty);
 
