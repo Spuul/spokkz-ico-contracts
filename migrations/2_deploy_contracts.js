@@ -4,25 +4,58 @@ var SpokkzTokenSale = artifacts.require("./SpokkzTokenSale.sol")
 module.exports = function(deployer, network, accounts) {
 
   const BigNumber = web3.BigNumber;
-
-  const additionalTime = 60000 * 5;
-  const openingTime = Math.round((new Date(Date.now() + additionalTime).getTime())/1000);
-  const closingTime = Math.round((new Date().getTime() + (86400000 * 30))/1000);
-
-  const rateDuringPrivateStage = 12000;
-  const rateDuringPresaleStage = 7058;
-  const rateDuringCrowdsaleStage = 6000;
-
-  const goal = new BigNumber(web3.toWei(11111, 'ether')); // Soft cap is 11,111 ether
-  const cap = new BigNumber(web3.toWei(50000, 'ether'));  // Hard cap is 50,000 ether
-
   const capTokenSupply = new BigNumber('1e27');         // 1 Billion
 
   const wallet = accounts[1]
   const ecosystemFund = accounts[2]
   const otherFunds = accounts[3] // teamFund, advisorsFund, legalAndMarketingFund, bountyFund, tokensAlreadySold
 
-  const raisedPrivatelyPreDeployment = new BigNumber(web3.toWei(0, 'ether'));
+  let bufferForOpeningTime;
+  let saleDuration;
+  let openingTime;
+  let closingTime;
+  let goal;
+  let cap;
+  let raisedPrivatelyPreDeployment;
+
+  let rateDuringPrivateStage;
+  let rateDuringPresaleStage;
+  let rateDuringCrowdsaleStage;
+
+  if (network === "rinkeby") {
+    bufferForOpeningTime = 60000 * 5; // 5 minutes
+    saleDuration = 60000 * 60 * 3;    // 3 hours
+
+    rateDuringPrivateStage = 12000 * 1000;
+    rateDuringPresaleStage = 7058 * 1000 ;
+    rateDuringCrowdsaleStage = 6000 * 1000;
+
+    goal = 11111 / 1000; // 11.111 eth
+    cap = 50000 / 1000;  // 50 eth
+
+    raisedPrivatelyPreDeployment = 1;
+
+  } else {
+    bufferForOpeningTime = 60000 * 60;      // 1 hour
+    saleDuration = 60000 * 60 * 24 * 30;    // 30 days
+
+    rateDuringPrivateStage = 12000;
+    rateDuringPresaleStage = 7058;
+    rateDuringCrowdsaleStage = 6000;
+
+    goal = 11111;
+    cap = 50000;
+
+    raisedPrivatelyPreDeployment = 0;
+  }
+
+  openingTime = Math.round((new Date(Date.now() + bufferForOpeningTime).getTime())/1000);
+  closingTime = Math.round((new Date().getTime() + (saleDuration))/1000);
+
+  goal = new BigNumber(web3.toWei(goal, 'ether'));
+  cap = new BigNumber(web3.toWei(cap, 'ether'));
+
+  raisedPrivatelyPreDeployment = new BigNumber(web3.toWei(raisedPrivatelyPreDeployment, 'ether'));
 
   deployer.deploy(SpokkzToken, capTokenSupply).then(function() {
     return deployer.deploy(
