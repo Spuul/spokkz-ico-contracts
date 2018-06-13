@@ -191,6 +191,11 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     _deliverTokens(otherFunds, remainingTokensToBeMinted);
   }
 
+  function extendClosingTime() onlyOwner public {
+    require(!isFinalized);
+    closingTime = closingTime.add(1 days);
+  }
+
   function start() public onlyOwner {
     require(!hasStarted);
 

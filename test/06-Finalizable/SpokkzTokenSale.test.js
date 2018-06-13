@@ -73,7 +73,18 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFu
 
       it('can be finalized by owner after ending', async function () {
         await increaseTimeTo(this.afterClosingTime);
-        await this.crowdsale.finalize({ from: owner }).should.be.fulfilled;
+        await this.crowdsale.extendClosingTime({ from: owner }).should.be.fulfilled;
+      });
+
+      it('should be able to extend closing time', async function()  {
+        // not owner
+        await this.crowdsale.extendClosingTime({ from: thirdparty }).should.be.rejectedWith(EVMRevert);
+
+        await this.crowdsale.extendClosingTime({ from: owner }).should.be.fulfilled;
+        const newClosingTime = await this.crowdsale.closingTime.call();
+
+        const expectedClosingTime = new BigNumber(this.closingTime + duration.days(1));
+        newClosingTime.should.be.bignumber.equal(expectedClosingTime);
       });
 
       it('cannot be finalized twice', async function () {
