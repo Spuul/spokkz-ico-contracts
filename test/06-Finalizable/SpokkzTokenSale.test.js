@@ -100,15 +100,11 @@ contract('SpokkzTokenSale', function ([_, owner, wallet, thirdparty, ecosystemFu
         should.exist(event);
       });
 
-      it('should not mint unsold tokens after finalizing', async function() {
+      it('should mint all tokens after finalizing', async function() {
         await increaseTimeTo(this.afterClosingTime);
-        const totalTokenSales = await this.token.totalSupply();
-
         await this.crowdsale.finalize({ from: owner }).should.be.fulfilled;
-        const expectedTokenSupply = capTokenSupply.sub(TOTAL_TOKENS_FOR_SALE.sub(totalTokenSales))
         const totalSupply = await this.token.totalSupply();
-
-        totalSupply.should.be.bignumber.equal(expectedTokenSupply);
-      });
+        totalSupply.should.be.bignumber.equal(capTokenSupply);
+      }); 
     });
 });

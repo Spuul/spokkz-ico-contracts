@@ -183,11 +183,13 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
     super.finalization();
 
     uint256 alreadyMinted = token.totalSupply();
+    uint256 unsoldTokens = totalTokensForSale.sub(alreadyMinted);
 
-    _deliverTokens(ecosystemFund, tokensForEcosystem);
+    uint256 tokensForEcosystemPlusUnsoldTokens = tokensForEcosystem.add(unsoldTokens);
+
+    _deliverTokens(ecosystemFund, tokensForEcosystemPlusUnsoldTokens);
 
     uint256 remainingTokensToBeMinted = tokensForTeam.add(tokensForAdvisors).add(tokensForLegalAndMarketing).add(tokensForBounty);
-
     _deliverTokens(otherFunds, remainingTokensToBeMinted);
   }
 
