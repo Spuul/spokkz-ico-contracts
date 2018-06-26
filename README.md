@@ -1,1 +1,1 @@
-# spok-ico-contracts
+# spokkz-ico-contracts
