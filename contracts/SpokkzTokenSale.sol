@@ -1,15 +1,15 @@
-pragma solidity ^0.4.18;
+pragma solidity ^0.4.24;
 
 import './SpokkzToken.sol';
 
-import 'zeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
-import 'zeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol';
-import 'zeppelin-solidity/contracts/token/ERC20/TokenVesting.sol';
-import 'zeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/validation/CappedCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/validation/WhitelistedCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/emission/MintedCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/crowdsale/distribution/RefundableCrowdsale.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/TokenVesting.sol';
+import 'openzeppelin-solidity/contracts/token/ERC20/TokenTimelock.sol';
 
-contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsale, RefundableCrowdsale {
+contract SpokkzTokenSale is CappedCrowdsale, RefundableCrowdsale, MintedCrowdsale, WhitelistedCrowdsale {
 
   event TokenVestingCreated(address indexed beneficiary, address indexed tokenVesting, uint256 vestingStartDate, uint256 vestingCliffDuration, uint256 vestingPeriodDuration, uint256 vestingFullAmount);
   event TokenTimelockCreated(address indexed beneficiary, address indexed tokenTimelock, uint256 releaseTime);
@@ -57,7 +57,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
   // Constructor
   // ============
-  function SpokkzTokenSale(
+  constructor (
       uint256 _rateDuringPrivateStage,
       uint256 _rateDuringPresaleStage,
       uint256 _rateDuringCrowdsaleStage,
@@ -71,9 +71,9 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       address _ecosystemFund,
       address _otherFunds) public
     CappedCrowdsale(_cap)
-    Crowdsale(_rateDuringPrivateStage, _wallet, _token)
-    TimedCrowdsale(_openingTime, _closingTime)
     RefundableCrowdsale(_goal)
+    TimedCrowdsale(_openingTime, _closingTime)
+    Crowdsale(_rateDuringPrivateStage, _wallet, _token)
     {
       require(_rateDuringPrivateStage > 0);
       require(_rateDuringPresaleStage > 0);
@@ -129,7 +129,7 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       releaseTime = closingTime.add(180 days);
 
       TokenTimelock privateTokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
-      TokenTimelockCreated(_beneficiary, privateTokenTimelock, releaseTime);
+      emit TokenTimelockCreated(_beneficiary, privateTokenTimelock, releaseTime);
 
       beneficiary = privateTokenTimelock;
     } else if (stage == TokenSaleStage.Presale){
@@ -140,14 +140,14 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
       bool vestingRevocable = true;
 
       TokenVesting tokenVesting = new TokenVesting(_beneficiary, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, vestingRevocable);
-      TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, _tokenAmount);
+      emit TokenVestingCreated(_beneficiary, tokenVesting, vestingStartDate, vestingCliffDuration, vestingPeriodDuration, _tokenAmount);
 
       beneficiary = tokenVesting;
     } else if (stage == TokenSaleStage.Crowdsale) {
       releaseTime = closingTime.add(7 days);
 
       TokenTimelock crowdsaleTokenTimelock = new TokenTimelock(token, _beneficiary, releaseTime);
-      TokenTimelockCreated(_beneficiary, crowdsaleTokenTimelock, releaseTime);
+      emit TokenTimelockCreated(_beneficiary, crowdsaleTokenTimelock, releaseTime);
 
       beneficiary = crowdsaleTokenTimelock;
     }
@@ -203,16 +203,16 @@ contract SpokkzTokenSale is CappedCrowdsale, MintedCrowdsale, WhitelistedCrowdsa
 
     mintTokensSoldPrivatelyPreDeployment();
     hasStarted = true;
-    Start();
+    emit Start();
   }
 
   function pause() onlyOwner whenNotPaused public {
     isPaused = true;
-    Pause();
+    emit Pause();
   }
 
   function unpause() onlyOwner whenPaused public {
     isPaused = false;
-    Unpause();
+    emit Unpause();
   }
 }

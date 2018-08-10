@@ -1,4 +1,4 @@
-import ether from '../../node_modules/zeppelin-solidity/test/helpers/ether';
+import ether from '../../node_modules/openzeppelin-solidity/test/helpers/ether';
 
 const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
 const SpokkzToken = artifacts.require('SpokkzToken');

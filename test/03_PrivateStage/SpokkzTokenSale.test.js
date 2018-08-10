@@ -1,7 +1,7 @@
-import { advanceBlock } from '../../node_modules/zeppelin-solidity/test/helpers/advanceToBlock';
-import { increaseTimeTo, duration } from '../../node_modules/zeppelin-solidity/test/helpers/increaseTime';
-import ether from '../../node_modules/zeppelin-solidity/test/helpers/ether';
-import latestTime from '../../node_modules/zeppelin-solidity/test/helpers/latestTime';
+import { advanceBlock } from '../../node_modules/openzeppelin-solidity/test/helpers/advanceToBlock';
+import { increaseTimeTo, duration } from '../../node_modules/openzeppelin-solidity/test/helpers/increaseTime';
+import ether from '../../node_modules/openzeppelin-solidity/test/helpers/ether';
+import latestTime from '../../node_modules/openzeppelin-solidity/test/helpers/latestTime';
 
 const SpokkzTokenSale = artifacts.require('SpokkzTokenSale');
 const SpokkzToken = artifacts.require('SpokkzToken');
